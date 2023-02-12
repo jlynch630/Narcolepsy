@@ -1,0 +1,44 @@
+﻿@using Narcolepsy.Core.Http
+@using System.Text
+<h3>TestTab</h3>
+
+<input type="text" @bind-value="@Context.Method.Value"/>
+<input type="text" @bind-value="@Context.Url.Value"/>
+
+<p>
+    <b>Current Values:</b>
+</p>
+<p>
+    <b>Method:</b> @Context.Method.Value,
+    <b>URL:</b> @Context.Url.Value
+</p>
+<button @onclick="Context.Execute">Go!</button>
+@if (Context.Response.Value is not null) {
+    HttpResponse Resp = Context.Response.Value;
+    <p>@Resp.StatusCode</p>
+    <p>@Resp.StatusText</p>
+    <p>@Resp.ExecutionTime.ToString()</p>
+    <p>@Resp.RequestDate.ToShortTimeString()</p>
+    <p>
+        @foreach (HttpResponseHeader Head in Resp.ResponseHeaders) {
+            <span>
+                <b>@Head.Name</b>: @Head.Value
+            </span>
+            <br />
+        }
+    </p>
+    <pre>@Encoding.Default.GetString(Resp.ResponseBody)</pre>
+    <p>@Resp.Error</p>
+}
+
+@code {
+
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        Context.Response.ValueChanged += (_, _) => StateHasChanged();
+    }
+
+}

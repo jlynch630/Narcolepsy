@@ -1,0 +1,18 @@
+﻿@using Narcolepsy.Core.Http
+@using Narcolepsy.Core.ViewConfig
+<div class="url-method-container">
+    <select @bind-value="Context.Method.Value">
+        @foreach (string Method in Configuration.AvailableHttpMethods) {
+            <option value="@Method">@Method</option>
+        }
+    </select>
+    <input type="text" @bind-value="Context.Url.Value"/>
+</div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    [Parameter]
+    public HttpViewConfiguration Configuration {get; set; }
+}

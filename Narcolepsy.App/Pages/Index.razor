@@ -1,0 +1,26 @@
+﻿@page "/"
+@using Narcolepsy.Platform.Requests
+@inject Plugins.PluginManager PluginManager;
+@inject RequestManager RequestManager;
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+<input type="text" @bind-value="Name" />
+<button @onclick="CreateRequest">Create!</button>
+
+@if (CurrentRequest is not null) {
+	@CurrentRequest.Render()
+}
+@code {
+    private string Name;
+	private Request CurrentRequest = null;
+
+	protected override async Task OnInitializedAsync() {
+		await PluginManager.InitializePluginsAsync();
+		await base.OnInitializedAsync();
+	}
+
+    public void CreateRequest() {
+        this.CurrentRequest = RequestManager.CreateRequest("HTTP", Name);
+    }
+}
