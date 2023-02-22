@@ -1,0 +1,6 @@
+﻿.app-container {
+	height: 100%;
+	display: grid;
+	grid: 1fr / 1fr;
+	place-items: stretch;
+}

@@ -1,0 +1,15 @@
+﻿@GetFormattedResponseSize(Context.ResponseBody.LongLength)
+
+@code {
+    [Parameter]
+    public HttpResponse Context { get; set; }
+
+    private string GetFormattedResponseSize(long length) {
+        if (length < 1024)
+            return $"{length} B";
+        if (length < 1048576)
+            return $"{length / (double)1024:0.##} kB";
+
+        return $"{length / (double)1048576:0.##} MB";
+    }
+}

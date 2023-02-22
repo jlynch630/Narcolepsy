@@ -1,5 +1,82 @@
-﻿<div class="response-view">ResponseView</div>
+﻿@using System.Text;
+@using System.Security.Authentication;
+<div class="response-view">
+    <Tabs Context="Context"
+          Configuration="Configuration"
+          TabList="Configuration.ResponseTabs"
+          GridArea="content" />
+          
+    @if (Context.Response.Value?.Error is not null) {
+        RequestExecutionError Error = Context.Response.Value?.Error!;
+        (string Icon, string ErrorMessage, string HelpText) = GetErrorText(Error);
+        <div class="response-error-view">
+            <span class="material-symbols-rounded error-icon">@Icon</span>
+            <h3 class="title">@ErrorMessage</h3>
+            <h4 class="subtitle">@HelpText</h4>
+            @if (Error.Exception is not null) {
+                Exception Exception = Error.Exception;
+                <div class="exception">
+                    <p class="exception-line">@Exception.Message</p>
+                    @while (Exception.InnerException is not null) {
+                        Exception = Exception.InnerException;
+                        <div class="inner-exception">
+                            <span class="exception-arrow material-symbols-rounded">subdirectory_arrow_right</span>
+                            <p class="exception-line">@Exception.Message</p>
+                        </div>
+                    }
+                </div>
+                @if (IsDebug) {
+                    <pre class="exception-pre">
+                        @Error.Exception.ToString()
+                    </pre>
+                }
+            }
+        </div>
+    }
+</div>
 
 @code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
 
+    [Parameter]
+    public HttpViewConfiguration Configuration { get; set; }
+
+#if DEBUG
+    private bool IsDebug = true;
+#else
+    private bool IsDebug = false;
+#endif
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        this.Context.Response.ValueChanged += (_, r) => this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private (string Icon, string Message, string Help) GetErrorText(RequestExecutionError error) {
+        const string DefaultIcon = "warning";
+        const string DefaultMessage = "There was an error making the request";
+        const string DefaultHelp = "Check the request URL and your network settings";
+
+        if (error.Message is not null && error.HelpText is not null) return (DefaultIcon, error.Message, error.HelpText);
+        if (error.Message is not null) return (DefaultIcon, error.Message, DefaultHelp);
+        if (error.HelpText is not null) return (DefaultIcon, DefaultMessage, error.HelpText);
+
+        string ExceptionMessage = error.Exception?.Message ?? "";
+
+        // System.NotSupportedException: The 'scheme' scheme is not supported.
+        // HttpRequestException: The SSL connection could not be established, The remote certificate is invalid according to the validation procedure: RemoteCertificateNameMismatch
+        // System.Net.Http.HttpRequestException: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+        // System.Threading.Tasks.TaskCanceledException: A task was canceled.
+        // System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 0.05 seconds elapsing.
+        return error.Exception switch
+        {
+            NotSupportedException _ when ExceptionMessage.Contains("scheme is not supported") => (DefaultIcon, "Unsupported URL scheme", "You may need to install a plugin that supports this scheme"),
+            HttpRequestException _ when ExceptionMessage.Contains("SSL connection could not be established") && error.Exception.InnerException is AuthenticationException => ("lock_open", "Invalid SSL certificate", "The server may be misconfigured. If you are testing locally or trust the server, disable certificate validation."),
+            HttpRequestException _ when ExceptionMessage.Contains("did not properly respond after a period of time") => (DefaultIcon, "There was an error connecting to the server", DefaultHelp),
+            TaskCanceledException _ when ExceptionMessage.Contains("A task was canceled") || ExceptionMessage.Contains("The operation was canceled") => ("cancel", "Request Canceled", ""),
+            TaskCanceledException _ when ExceptionMessage.Contains("due to the configured HttpClient.Timeout") => ("schedule", "Request Timed Out", "The request took too long to complete. Try increasing the request timeout"),
+            _ => (DefaultIcon, DefaultMessage, DefaultHelp)
+        };
+    }
 }

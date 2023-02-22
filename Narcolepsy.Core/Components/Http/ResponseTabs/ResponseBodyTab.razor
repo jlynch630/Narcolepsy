@@ -1,0 +1,88 @@
+﻿@using System.Text
+@using Microsoft.JSInterop
+@using Narcolepsy.Core.Components.Http.ResponseTabs.ResponseBodyViews
+@using Narcolepsy.Core.Interop
+@inject IJSRuntime JsRuntime
+
+<div class="body-tab">
+    <div class="view-selection">
+        <select @bind="CurrentViewType">
+            @foreach (ViewSelection EnabledView in EnabledViews) {
+                <option value="@EnabledView">@EnabledView.ToString()</option>
+            }
+        </select>
+    </div>
+    <div class="view">
+        @switch (CurrentViewType) {
+            case ViewSelection.Formatted:
+                <FormattedView Context="Context" />
+                break;
+            case ViewSelection.Raw:
+                <RawView Context="Context" />
+                break;
+            case ViewSelection.Preview:
+                break;
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    private ViewSelection CurrentViewType = ViewSelection.Preview;
+
+    private ViewSelection[] EnabledViews = new[] { ViewSelection.Preview, ViewSelection.Formatted, ViewSelection.Raw };
+
+    private static readonly string[] SupportedPreviewTypes = new[] {
+        "blarg"
+    };
+
+    private static readonly string[] SupportedFormattedTypes = new[] {
+        "application/json",
+        "text/html",
+        "text/javascript",
+        "text/css",
+        "application/xml",
+        "text/xml",
+        "application/xaml+xml",
+        "application/xml-dtd"
+    };
+
+    private enum ViewSelection {
+        Formatted,
+        Raw,
+        Preview
+    }
+
+    private bool Supports(string contentType, string[] supportedTypes) => supportedTypes.Contains(contentType.ToLowerInvariant());
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        this.Context.Response.ValueChanged += (_, r) => this.UpdateEnabledViews(r);
+    }
+
+    protected override void OnAfterRender(bool firstRender) {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender) this.UpdateEnabledViews(this.Context.Response.Value);
+    }
+
+    private void UpdateEnabledViews(HttpResponse? response) {
+        string ContentType = response?.ResponseHeaders.GetHeaderValue("Content-Type")?.Split(";")[0] ?? "";
+
+        List<ViewSelection> Supported = new();
+        if (this.Supports(ContentType, ResponseBodyTab.SupportedPreviewTypes))
+            Supported.Add(ViewSelection.Preview);
+        if (this.Supports(ContentType, ResponseBodyTab.SupportedFormattedTypes))
+            Supported.Add(ViewSelection.Formatted);
+
+        Supported.Add(ViewSelection.Raw);
+
+        this.EnabledViews = Supported.ToArray();
+
+        if (!Supported.Contains(this.CurrentViewType)) this.CurrentViewType = this.EnabledViews[0];
+        this.InvokeAsync(this.StateHasChanged);
+    }
+
+}

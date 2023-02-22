@@ -12,7 +12,6 @@
     <b>Method:</b> @Context.Method.Value,
     <b>URL:</b> @Context.Url.Value
 </p>
-<button @onclick="Context.Execute">Go!</button>
 @if (Context.Response.Value is not null) {
     HttpResponse Resp = Context.Response.Value;
     <p>@Resp.StatusCode</p>
@@ -27,7 +26,6 @@
             <br />
         }
     </p>
-    <pre>@Encoding.Default.GetString(Resp.ResponseBody)</pre>
     <p>@Resp.Error</p>
 }
 

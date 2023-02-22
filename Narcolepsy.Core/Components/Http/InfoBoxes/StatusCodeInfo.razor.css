@@ -1,0 +1,25 @@
+﻿.status-info.informational {
+	color: #2196f3;
+}
+
+.status-info.successful {
+	color: #689f38;
+}
+
+
+.status-info.redirection {
+	color: #6a1b9a;
+}
+
+
+.status-info.client-error {
+	color: #c62828;
+}
+
+.status-info.server-error {
+	color: #ef6c00;
+}
+
+.status-code {
+	font-weight: 500;
+}

@@ -1,0 +1,65 @@
+﻿@using System.Collections.ObjectModel;
+<div class="req-header-list">
+    @for (int i = 0; i < this.Headers.Count; i++) {
+        HttpHeader Header = this.Headers[i];
+        int HeaderIndex = i;
+
+        <div class="header-editor">
+            <input @ref="LastNameInput" placeholder="Name" class="header-edit name" @onchange="(e) => this.UpdateHeaderName(e, HeaderIndex)" value="@Header.Name" />
+            <input @ref="LastValueInput" placeholder="Value" class="header-edit value" @onchange="(e) => this.UpdateHeaderValue(e, HeaderIndex)" value="@Header.Value" />
+        </div>
+    }
+
+    <div class="header-editor new">
+        <input class="header-edit name" placeholder="Name" @onfocus="() => CreateNew(true)" />
+        <input class="header-edit value" placeholder="Value" @onfocus="() => CreateNew(true)" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    private ElementReference LastNameInput;
+    private ElementReference LastValueInput;
+    private bool ShouldFocusLastName;
+    private bool ShouldFocusLastValue;
+
+    private ObservableCollection<HttpHeader> Headers => this.Context.Headers.MutableValue;
+
+    protected override async Task OnInitializedAsync() {
+        await base.OnInitializedAsync();
+
+        this.Context.Headers.ValueChanged += async (_, r) => {
+            this.StateHasChanged();
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (this.ShouldFocusLastName) {
+            await this.LastNameInput.FocusAsync();
+            this.ShouldFocusLastName = false;
+        }
+
+        if (this.ShouldFocusLastValue) {
+            await this.LastValueInput.FocusAsync();
+            this.ShouldFocusLastValue = false;
+        }
+    }
+
+    private void UpdateHeaderValue(ChangeEventArgs e, int index) {
+        this.Headers[index] = this.Headers[index] with { Value = e.Value?.ToString() ?? "" };
+    }
+
+    private void UpdateHeaderName(ChangeEventArgs e, int index) {
+        this.Headers[index] = this.Headers[index] with { Name = e.Value?.ToString() ?? "" };
+    }
+
+    private void CreateNew(bool focusOnName) {
+        this.Headers.Add(new HttpHeader("", "", true, true, null));
+        this.ShouldFocusLastName = focusOnName;
+        this.ShouldFocusLastValue = !focusOnName;
+    }
+}

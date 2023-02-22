@@ -1,0 +1,19 @@
+﻿<span class="status-info @ColorClass">
+    <span class="status-code">@Context.StatusCode</span>
+    @Context.StatusText
+</span>
+
+@code {
+    [Parameter]
+    public HttpResponse Context { get; set; }
+
+    private string ColorClass => Context.StatusCode switch {
+        >= 100 and < 200 => "informational",
+        >= 200 and < 300 => "successful",
+        >= 300 and < 400 => "redirection",
+        >= 400 and < 500 => "client-error",
+        >= 500 and < 599 => "server-error",
+        _ => ""
+    };
+
+}

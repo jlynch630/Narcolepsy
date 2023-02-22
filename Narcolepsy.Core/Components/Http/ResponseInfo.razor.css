@@ -1,0 +1,22 @@
+﻿.response-info {
+	grid-area: response-info;
+	display: flex;
+	flex-direction: row;
+	background: var(--color-lighter-gray);
+	border-bottom: 1px solid var(--color-gray);
+	border-left: 1px solid var(--color-gray);
+}
+
+.info-box {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	background: var(--color-light-gray);
+	border-right: 1px solid var(--color-gray);
+}
+
+	.info-box.error {
+		color: white;
+		font-weight: 500;
+		background: #B71C1C;
+	}

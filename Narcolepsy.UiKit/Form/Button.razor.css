@@ -1,0 +1,22 @@
+﻿button {
+	border: none;
+	background-color: var(--color-primary);
+	padding: 10px 18px;
+	font-family: inherit;
+	font-weight: 600;
+	color: white;
+	transition: background 100ms ease;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 4px;
+}
+
+	button:hover {
+		background-color: var(--color-primary-dark);
+	}
+
+	button:active {
+		background-color: var(--color-primary-darker);
+	}

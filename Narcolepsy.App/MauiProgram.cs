@@ -3,10 +3,8 @@
 using Narcolepsy.App.Plugins;
 using Narcolepsy.Platform.Requests;
 
-public static class MauiProgram
-{
-	public static MauiApp CreateMauiApp()
-	{
+public static class MauiProgram {
+	public static MauiApp CreateMauiApp() {
 		MauiAppBuilder builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
@@ -21,8 +19,10 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<RequestManager>();
+        builder.Services.AddSingleton<AssetManager>();
         builder.Services.AddSingleton<PluginManager>();
+		PluginManager.InitializePluginServices(builder.Services);
 
         return builder.Build();
-	}
+    }
 }

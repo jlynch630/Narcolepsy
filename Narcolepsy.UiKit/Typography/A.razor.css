@@ -1,0 +1,5 @@
+﻿a {
+	text-decoration: underline;
+	cursor: pointer;
+	transition: color 100ms ease;
+}

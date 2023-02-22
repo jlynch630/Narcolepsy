@@ -1,0 +1,56 @@
+﻿.tabs {
+	grid-area: tabs;
+	display: grid;
+	grid: "list" auto "view" 1fr / 1fr;
+	overflow: hidden;
+}
+
+.tab-list {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	background: var(--color-lighter-gray);
+	grid-area: list;
+}
+
+.tab-view {
+	grid-area: view;
+	overflow: auto;
+}
+
+button.tab-button {
+	border: none;
+	cursor: pointer;
+	padding: 6px 10px;
+	font-family: inherit;
+	outline: 0;
+	--side-border: 1px solid var(--color-gray);
+	border-right: var(--side-border);
+	border-bottom: 2px solid var(--color-accent);
+	background: var(--color-light-gray);
+	color: var(--color-text-dark);
+	transition: background 75ms ease, border-color 75ms ease, color 75ms ease;
+	font-size: 0.62em;
+}
+
+button.tab-button:hover {
+	background: var(--color-gray);
+}
+
+button.tab-button:active {
+	background: var(--color-gray-dark);
+}
+
+	button.tab-button.active {
+		background: var(--color-primary-light);
+		color: var(--color-primary-text);
+		border-bottom: 2px solid var(--color-primary-light);
+	}
+
+button.tab-button.active:hover {
+	background: var(--color-primary);
+}
+
+button.tab-button.active:active {
+	background: var(--color-primary-dark);
+}

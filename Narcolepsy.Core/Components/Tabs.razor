@@ -1,0 +1,41 @@
+﻿@using Narcolepsy.Core.Tabs
+<div class="tabs@(ClassName is null ? "" : $" {ClassName}")" style=@(GridArea is null ? "" : $"grid-area: {GridArea}")>
+    <div class="tab-list">
+        @foreach (ITab<IHttpRequestContext> Tab in TabList) {
+            <button class="tab-button @(Tab == ActiveTab ? "active" : "")" @onclick="() => ActiveTab = Tab">
+                @Tab.Title
+            </button>
+        }
+    </div>
+    <div class="tab-view">
+        <CascadingValue Value="Configuration">
+            @ActiveTab?.RenderWithContext(Context)
+        </CascadingValue>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    [Parameter]
+    public HttpViewConfiguration Configuration { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<ITab<IHttpRequestContext>> TabList { get; set; }
+
+    [Parameter]
+    public string? GridArea {get; set; }
+
+    [Parameter]
+    public string? ClassName { get; set; }
+
+    private ITab<IHttpRequestContext>? ActiveTab;
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+
+        this.ActiveTab ??= this.TabList[0];
+    }
+
+}

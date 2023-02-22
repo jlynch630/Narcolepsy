@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Components;
 using Platform.Rendering;
 
-public class SimpleTab<TComponent> : Renderable<TComponent>, ITab where TComponent : IComponent {
+public class SimpleTab<TComponent, TContext> : Renderable<TComponent, TContext>, ITab<TContext> where TComponent : IComponent {
     public SimpleTab(string title) {
         this.Title = title;
     }

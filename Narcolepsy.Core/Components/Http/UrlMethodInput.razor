@@ -1,18 +1,44 @@
-﻿@using Narcolepsy.Core.Http
-@using Narcolepsy.Core.ViewConfig
-<div class="url-method-container">
-    <select @bind-value="Context.Method.Value">
+﻿<div class="url-method-container">
+    <select class="method-select" @bind="Context.Method.Value">
         @foreach (string Method in Configuration.AvailableHttpMethods) {
             <option value="@Method">@Method</option>
         }
     </select>
-    <input type="text" @bind-value="Context.Url.Value"/>
+    <input class="url-input" type="text" @bind="Context.Url.Value"/>
+    <Button class="execute" @onclick="Execute">
+        @if (!IsLoadingRequest) {
+            <span>Send</span>
+        }
+        else {
+            <Spinner />
+        }
+    </Button>
 </div>
 
 @code {
+
     [Parameter]
     public IHttpRequestContext Context { get; set; }
 
     [Parameter]
-    public HttpViewConfiguration Configuration {get; set; }
+    public HttpViewConfiguration Configuration { get; set; }
+
+    private bool IsLoadingRequest = false;
+
+    private CancellationTokenSource ReqCancelToken;
+
+    private async Task Execute() {
+        if (this.IsLoadingRequest) {
+            // cancel it!
+            this.ReqCancelToken.Cancel();
+            return;
+        }
+
+        this.ReqCancelToken = new CancellationTokenSource();
+        this.IsLoadingRequest = true;
+        this.StateHasChanged();
+        await this.Context.Execute(this.ReqCancelToken.Token);
+        this.IsLoadingRequest = false;
+    }
+
 }

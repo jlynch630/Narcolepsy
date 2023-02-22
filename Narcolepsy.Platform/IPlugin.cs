@@ -1,17 +1,13 @@
-﻿namespace Narcolepsy.Platform {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using System.Threading.Tasks;
+﻿namespace Narcolepsy.Platform;
 
-	public interface IPlugin {
-		public string FullName { get; }
+using Microsoft.Extensions.DependencyInjection;
 
-		public string Description { get; }
+public interface IPlugin {
+    public string FullName { get; }
 
-		public PluginVersion Version { get; }
+    public string Description { get; }
 
-		public Task InitializeAsync(NarcolepsyContext context);
-	}
+    public PluginVersion Version { get; }
+
+    public Task InitializeAsync(NarcolepsyContext context);
 }

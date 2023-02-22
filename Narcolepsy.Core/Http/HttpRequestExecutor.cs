@@ -3,18 +3,23 @@
 using System.Diagnostics;
 
 internal class HttpRequestExecutor {
-    private readonly HttpClient Client = new();
+    private readonly HttpClient Client = new(new HttpClientHandler() {
+        AllowAutoRedirect = false,
+        AutomaticDecompression = System.Net.DecompressionMethods.All,
+        UseCookies = false
+    });
 
     public static HttpRequestExecutor Instance { get; } = new();
 
-    public async Task<HttpResponse> Execute(HttpRequestMessage request) {
+    public async Task<HttpResponse> Execute(HttpRequestMessage request, CancellationToken token) {
         try {
             Stopwatch Stopwatch = Stopwatch.StartNew();
-            HttpResponseMessage Response = await this.Client.SendAsync(request);
+            HttpResponseMessage Response = await this.Client.SendAsync(request, token);
             Stopwatch.Stop();
             return new HttpResponse(
                 DateTime.Now,
                 Stopwatch.Elapsed,
+                request,
                 (int)Response.StatusCode,
                 Response.ReasonPhrase ?? "",
                 Response.Headers.Concat(Response.Content.Headers)
@@ -22,10 +27,10 @@ internal class HttpRequestExecutor {
                 await Response.Content.ReadAsByteArrayAsync(),
                 null);
         } catch (Exception e) {
-            return new HttpResponse(default, default, 0, "", Array.Empty<HttpResponseHeader>(), Array.Empty<byte>(),
+            return new HttpResponse(default, default, request, 0, "", Array.Empty<HttpResponseHeader>(), Array.Empty<byte>(),
                 new RequestExecutionError(
-                    "There was an error making the request",
-                    e.Message,
+                    null,
+                    null,
                     e
                 ));
         }

@@ -1,0 +1,47 @@
+﻿@using System.Text
+@using Microsoft.JSInterop
+@using Narcolepsy.Core.Interop
+@inject IJSRuntime JsRuntime
+<div class="response-text" @ref="EditorElement"></div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    private HttpResponse? Response => this.Context.Response.Value;
+
+    private NarcolepsyJs JsService;
+
+    private MonacoEditor Editor;
+
+    private ElementReference EditorElement;
+
+    protected override async Task OnInitializedAsync() {
+        await base.OnInitializedAsync();
+
+        this.JsService = new NarcolepsyJs(JsRuntime);
+        this.Context.Response.ValueChanged += async (_, r) => {
+            await this.SetModel();
+            this.StateHasChanged();
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender) return;
+
+        this.Editor = await this.JsService.CreateEditor(this.EditorElement, "plaintext", true, "");
+        await this.SetModel();
+    }
+
+    private async Task SetModel() {
+        // set the model
+        if (Response is null) return;
+
+        // detect the language
+        MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(Response.ResponseHeaders.GetHeaderValue("Content-Type"));
+
+        MonacoTextModel NewModel = await this.JsService.CreateTextModel(await this.JsService.FormatCode(Response.BodyText, Language.PrimaryExtension), Language.Id);
+        await this.Editor.SetModel(NewModel);
+    }
+}

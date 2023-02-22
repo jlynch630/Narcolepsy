@@ -14,5 +14,5 @@ public interface IHttpRequestContext : IRequestContext {
 
 	public IReadOnlyState<HttpResponse?> Response { get; }
 
-	public Task Execute();
+	public Task Execute(CancellationToken token);
 }

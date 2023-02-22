@@ -1,3 +1,6 @@
-﻿body
-{
+﻿.view-container {
+	display: grid;
+	grid: "url response-info" auto "tabs response-tabs" 1fr/minmax(0, 1.25fr) minmax(0, 1fr);
+	padding-top: 40px;
+	overflow: hidden;
 }

@@ -5,5 +5,5 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    public record RequestExecutionError(string Message, string HelpText, Exception? Exception);
+    public record RequestExecutionError(string? Message, string? HelpText, Exception? Exception);
 }

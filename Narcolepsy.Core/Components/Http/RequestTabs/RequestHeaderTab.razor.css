@@ -1,0 +1,32 @@
+﻿.header-editor {
+	display: grid;
+	align-items: center;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.header-edit {
+	border: none;
+	border-bottom: 2px solid var(--color-gray);
+	outline: none;
+	transition: border 150ms ease;
+	padding: 8px;
+	font-family: inherit;
+}
+
+.req-header-list {
+	padding: 18px;
+}
+
+.header-edit:focus {
+	border-bottom: 2px solid var(--color-accent);
+}
+
+.new .header-edit:focus {
+	border-bottom: 2px solid var(--color-gray);
+}
+
+.new .header-edit {
+	caret-color: transparent;
+}

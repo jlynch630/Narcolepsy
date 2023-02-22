@@ -1,6 +1,7 @@
 ﻿namespace Narcolepsy.Core.Http;
 
 using Body;
+using Narcolepsy.Platform.Requests;
 using Platform.State;
 
 internal class HttpRequestContext : IHttpRequestContext {
@@ -21,25 +22,34 @@ internal class HttpRequestContext : IHttpRequestContext {
 
     public IReadOnlyState<HttpResponse?> Response => this.MutableResponse;
 
-    public async Task Execute() {
-        HttpContent Content = new StreamContent(await this.Body.Value.GetStreamAsync());
+    public async Task Execute(CancellationToken token) {
+        try {
+            HttpContent Content = new StreamContent(await this.Body.Value.GetStreamAsync());
 
-        // do content headers first
-        foreach (HttpHeader Header in this.Headers.Value.Where(
-                     h => h.IsEnabled && h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
-            Content.Headers.Add(Header.Name, Header.Value);
+            // do content headers first
+            foreach (HttpHeader Header in this.Headers.Value.Where(
+                         h => h.IsEnabled && h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
+                Content.Headers.Add(Header.Name, Header.Value);
 
-        // then other headers
-        HttpRequestMessage Message = new() {
-            Method = new HttpMethod(this.Method.Value),
-            RequestUri = new Uri(this.Url.Value),
-            Content = Content
-        };
+            // then other headers
+            HttpRequestMessage Message = new() {
+                Method = new HttpMethod(this.Method.Value),
+                RequestUri = new Uri(this.Url.Value),
+                Content = Content
+            };
 
-        foreach (HttpHeader Header in this.Headers.Value.Where(
-                     h => h.IsEnabled && !h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
-            Message.Headers.Add(Header.Name, Header.Value);
+            foreach (HttpHeader Header in this.Headers.Value.Where(
+                         h => h.IsEnabled && !h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
+                Message.Headers.Add(Header.Name, Header.Value);
 
-        this.MutableResponse.Value = await this.Executor.Execute(Message);
+            this.MutableResponse.Value = await this.Executor.Execute(Message, token);
+        } catch (Exception e) {
+            this.MutableResponse.Value = new HttpResponse(default, default, null, 0, "", Array.Empty<HttpResponseHeader>(), Array.Empty<byte>(),
+                new RequestExecutionError(
+                    null,
+                    null,
+                    e
+                ));
+        }
     }
 }

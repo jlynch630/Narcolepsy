@@ -1,18 +1,18 @@
 ﻿@page "/"
 @using Narcolepsy.Platform.Requests
+@using Narcolepsy.App.Plugins
+@using System.Diagnostics;
 @inject Plugins.PluginManager PluginManager;
 @inject RequestManager RequestManager;
-<h1>Hello, world!</h1>
+@inject IJSRuntime JSRuntime;
+@inject AssetManager AssetManager;
 
-Welcome to your new app.
-<input type="text" @bind-value="Name" />
-<button @onclick="CreateRequest">Create!</button>
-
-@if (CurrentRequest is not null) {
-	@CurrentRequest.Render()
-}
+<div class="app-container">
+    @if (CurrentRequest is not null) {
+        @CurrentRequest.Render()
+    }
+</div>
 @code {
-    private string Name;
 	private Request CurrentRequest = null;
 
 	protected override async Task OnInitializedAsync() {
@@ -20,7 +20,23 @@ Welcome to your new app.
 		await base.OnInitializedAsync();
 	}
 
-    public void CreateRequest() {
-        this.CurrentRequest = RequestManager.CreateRequest("HTTP", Name);
-    }
+	public void CreateRequest() {
+		this.CurrentRequest = RequestManager.CreateRequest("HTTP", "Request");
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender) {
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender) {
+			Stopwatch Stop = Stopwatch.StartNew();
+			await this.AssetManager.LoadAllScriptsAsync(this.JSRuntime);
+			await this.AssetManager.LoadAllStylesAsync(this.JSRuntime);
+			Stop.Stop();
+			System.Diagnostics.Debug.WriteLine(Stop.ElapsedMilliseconds);
+			this.CreateRequest();
+	        this.StateHasChanged();
+	    }
+
+	}
+
 }

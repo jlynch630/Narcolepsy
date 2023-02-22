@@ -2,6 +2,6 @@
 
 using Microsoft.AspNetCore.Components;
 
-public interface IRenderable {
-    public RenderFragment RenderWithContext<TContext>(TContext context);
+public interface IRenderable<in TContext> {
+    public RenderFragment RenderWithContext(TContext context);
 }

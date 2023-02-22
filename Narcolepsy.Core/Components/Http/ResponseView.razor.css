@@ -1,3 +1,67 @@
-﻿body
-{
+﻿.response-view {
+	border-left: 1px solid var(--color-gray);
+	grid-area: response-tabs;
+
+	display: grid;
+	grid: "content" 1fr / 1fr;
+}
+
+.response-error-view {
+	grid-area: content;
+	background: var(--color-light-gray);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
+	overflow-x: hidden;
+	overflow-y: auto;
+	text-align: center;
+}
+
+.error-icon {
+	font-size: 72px;
+	color: var(--color-primary);
+}
+
+.title {
+	margin: 8px 3em;
+}
+
+.subtitle {
+	margin: 4px 3em;
+	font-weight: 500;
+}
+
+.exception {
+	font-size: 0.8em;
+	margin: 1em 3em;
+	text-align: start;
+}
+
+.inner-exception {
+	display: grid;
+	grid-template-columns: auto 1fr;
+}
+
+	.inner-exception .exception-line {
+		padding-top: 6px;
+	}
+
+.exception-line {
+	margin: 0 0 0 3px;
+}
+
+.exception-arrow {
+	font-variation-settings: 'FILL' 1, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+}
+
+.exception-pre {
+	background: var(--color-lighter-gray);
+	padding: 12px;
+	border-radius: 4px;
+	max-width: calc(100% - 2em);
+	box-sizing: border-box;
+	overflow: auto;
+	text-align: start;
 }

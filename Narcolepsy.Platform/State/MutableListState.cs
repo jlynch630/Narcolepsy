@@ -4,21 +4,21 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
 public class MutableListState<TValue> : IReadOnlyState<IReadOnlyCollection<TValue>>, IDisposable {
-	private readonly ObservableCollection<TValue> BackingValue;
+	public ObservableCollection<TValue> MutableValue { get; }
 
-	public MutableListState() => this.BackingValue = new ObservableCollection<TValue>();
+	public MutableListState() => this.MutableValue = new ObservableCollection<TValue>();
 
 	public MutableListState(IEnumerable<TValue> collection) {
-		this.BackingValue =
+		this.MutableValue =
 			collection as ObservableCollection<TValue> ?? new ObservableCollection<TValue>(collection);
-		this.BackingValue.CollectionChanged += this.CollectionValueChanged;
+		this.MutableValue.CollectionChanged += this.CollectionValueChanged;
 	}
 
 	public void Dispose() {
-		this.BackingValue.CollectionChanged -= this.CollectionValueChanged;
+		this.MutableValue.CollectionChanged -= this.CollectionValueChanged;
 	}
 
-	public IReadOnlyCollection<TValue> Value => this.BackingValue;
+    public IReadOnlyCollection<TValue> Value => this.MutableValue;
 
 	public event EventHandler<IReadOnlyCollection<TValue>>? ValueChanged;
 

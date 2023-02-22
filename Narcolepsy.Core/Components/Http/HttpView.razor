@@ -1,18 +1,16 @@
-﻿@using Narcolepsy.Core.Http
-@using Narcolepsy.Core.Tabs
-@using Narcolepsy.Core.ViewConfig
-<h3>HttpView @Context.Name.Value </h3>
-<p>
-    @String.Join(", ", Configuration.AvailableHttpMethods)
-</p>
-@foreach (ITab Tab in Configuration.Tabs) {
-    <p><b>@Tab.Title</b></p>
-    <div>@Tab.RenderWithContext(Context)</div>
-}
-
-<div class="view-container">
+﻿<div class="view-container">
     <UrlMethodInput Context="Context" Configuration="Configuration"/>
-    <ResponseView></ResponseView>
+
+    <ResponseInfo Context="Context" Configuration="Configuration" />
+
+    <Tabs 
+        Context="Context"
+        Configuration="Configuration"
+        TabList="Configuration.RequestTabs" />
+
+    <ResponseView 
+        Context="Context"
+        Configuration="Configuration" />
 </div>
 
 @code {

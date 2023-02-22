@@ -8,6 +8,6 @@
     using System.Threading.Tasks;
     using Narcolepsy.Platform.Requests;
 
-    public record NarcolepsyContext(Version AppVersion, OSPlatform Platform, IRequestManager Requests) {
+    public record NarcolepsyContext(Version AppVersion, OSPlatform Platform, IRequestManager Requests, IAssetManager Assets) {
 	}
 }

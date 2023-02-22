@@ -1,0 +1,37 @@
+﻿@using System.Text
+@using Microsoft.JSInterop
+@using Narcolepsy.Platform.Rendering
+@inject IJSRuntime JsRuntime
+
+<div class="response-info">
+    @if (Response is not null) {
+        @if (Response.Error is not null) {
+            <div class="info-box error">Error</div>
+        }
+        else {
+            @foreach (IRenderable<HttpResponse> InfoBox in Configuration.ResponseInfoBoxes) {
+                <div class="info-box">
+                    @InfoBox.RenderWithContext(Response)
+                </div>
+            }
+        }
+    }
+</div>
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    [Parameter]
+    public HttpViewConfiguration Configuration { get; set; }
+
+    private HttpResponse? Response => this.Context.Response.Value;
+
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        this.Context.Response.ValueChanged += (_, _) => {
+            this.StateHasChanged();
+        };
+    }
+
+}

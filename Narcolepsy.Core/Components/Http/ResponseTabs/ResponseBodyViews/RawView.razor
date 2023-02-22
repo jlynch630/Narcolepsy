@@ -1,0 +1,99 @@
+﻿@using CommunityToolkit.Maui.Storage;
+@using System.Net.Http.Headers;
+@inject IJSRuntime JsRuntime
+
+<div class="container">
+    @if (IsBinaryResponse) {
+        <div class="download-container">
+            <h3 class="filename">@InferFilename()</h3>
+            <Button @onclick="SaveFile">Save As</Button>
+            <p class="note">
+                This file seems like binary content.
+                <A @onclick="ViewAnyway" class="view-link">View Anyway?</A>
+                <br />
+                Content Type: @(Context.Response.Value?.ResponseHeaders.GetHeaderValue("Content-Type") ?? "Unknown")
+            </p>
+        </div>
+    } else {
+        <pre class="raw-view">
+            @ColorizedResponse
+        </pre>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    private MarkupString ColorizedResponse;
+
+    private bool IsBinaryResponse;
+
+    private NarcolepsyJs JsService;
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        this.JsService = new NarcolepsyJs(this.JsRuntime);
+        this.Context.Response.ValueChanged += async (_, res) => await this.LoadNewResponse(res);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender) return;
+        await this.LoadNewResponse(this.Context.Response.Value);
+    }
+
+    private async Task LoadNewResponse(HttpResponse? response) {
+        if (response is null) return;
+
+        // is it text or not
+        this.IsBinaryResponse = response.BodyText.Contains("\ufffd");
+
+        if (this.IsBinaryResponse) {
+            this.ColorizedResponse = default;
+            await this.InvokeAsync(this.StateHasChanged);
+            return;
+        }
+
+        // very easy, just colorize and set
+        MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(response.ResponseHeaders.GetHeaderValue("Content-Type"));
+
+        this.ColorizedResponse = await this.JsService.Colorize(response.BodyText, Language.Id);
+        await this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private async Task ViewAnyway() {
+        this.IsBinaryResponse = false;
+
+        this.ColorizedResponse = (MarkupString)(this.Context.Response.Value?.BodyText ?? "");
+    }
+
+    private async Task SaveFile() {
+        if (this.Context.Response.Value is null) return;
+        await FileSaver.Default.SaveAsync(InferFilename(), new MemoryStream(this.Context.Response.Value.ResponseBody), default);
+    }
+
+    private string InferFilename() {
+        HttpResponse? Response = this.Context.Response.Value;
+        if (Response is null) return "file";
+
+        // guess from the url if we have nothing else
+        string UrlGuess = Path.GetFileName(Response.RequestMessage.RequestUri?.LocalPath) ?? "file";
+
+        // if we have a content disposition header, perfect!
+        string? ContentDisposition = Response.ResponseHeaders.GetHeaderValue("Content-Disposition");
+        if (ContentDisposition is not null) {
+            // sometimes they come malformed. that's okay, try to fix but just use the guess if it doesn't work
+            if (ContentDisposition.StartsWith("filename")) ContentDisposition = "attachment;" + ContentDisposition;
+            try {
+                ContentDispositionHeaderValue HeaderValue = ContentDispositionHeaderValue.Parse(ContentDisposition);
+                return HeaderValue.FileNameStar ?? HeaderValue.FileName ?? UrlGuess;
+            } catch {
+                // return the guess instead
+            }
+        }
+
+        return UrlGuess;
+    }
+}
