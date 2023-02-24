@@ -58,7 +58,7 @@
 
         // very easy, just colorize and set
         MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(response.ResponseHeaders.GetHeaderValue("Content-Type"));
-
+        
         this.ColorizedResponse = await this.JsService.Colorize(response.BodyText, Language.Id);
         await this.InvokeAsync(this.StateHasChanged);
     }

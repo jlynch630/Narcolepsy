@@ -4,15 +4,22 @@
         HttpHeader Header = this.Headers[i];
         int HeaderIndex = i;
 
-        <div class="header-editor">
-            <input @ref="LastNameInput" placeholder="Name" class="header-edit name" @onchange="(e) => this.UpdateHeaderName(e, HeaderIndex)" value="@Header.Name" />
-            <input @ref="LastValueInput" placeholder="Value" class="header-edit value" @onchange="(e) => this.UpdateHeaderValue(e, HeaderIndex)" value="@Header.Value" />
+        <div class="header-editor@(Header.IsUserModifiable ? "" : " readonly")">
+            <input @ref="LastNameInput" placeholder="Name" class="header-edit name@(Header.IsNameValid ? "" : " invalid")" @onchange="(e) => this.UpdateHeaderName(e, HeaderIndex)" value="@Header.Name" />
+            <input @ref="LastValueInput" placeholder="Value" class="header-edit value@(Header.IsValueValid ? "" : " invalid")" @onchange="(e) => this.UpdateHeaderValue(e, HeaderIndex)" value="@Header.Value" />
+            <div class="note-button-container">
+                <button class="header-button material-symbols-rounded@(Header.Note is null ? " transparent" : "")" tabindex="-1">info</button>
+                @if (Header.Note is not null) {
+                    <div class="header-note">@Header.Note</div>
+                }
+            </div>
+            <button class="header-button material-symbols-rounded remove-btn" tabindex="-1" @onclick="() => RemoveHeader(HeaderIndex)">close</button>
         </div>
     }
 
     <div class="header-editor new">
         <input class="header-edit name" placeholder="Name" @onfocus="() => CreateNew(true)" />
-        <input class="header-edit value" placeholder="Value" @onfocus="() => CreateNew(true)" />
+        <input class="header-edit value" placeholder="Value" @onfocus="() => CreateNew(false)" />
     </div>
 </div>
 
@@ -50,11 +57,16 @@
     }
 
     private void UpdateHeaderValue(ChangeEventArgs e, int index) {
-        this.Headers[index] = this.Headers[index] with { Value = e.Value?.ToString() ?? "" };
+        this.Headers[index] = this.Headers[index] with { Value = e.Value?.ToString() ?? "", Note = null };
     }
 
     private void UpdateHeaderName(ChangeEventArgs e, int index) {
-        this.Headers[index] = this.Headers[index] with { Name = e.Value?.ToString() ?? "" };
+        this.Headers[index] = this.Headers[index] with { Name = e.Value?.ToString() ?? "", Note = null };
+    }
+
+    private void RemoveHeader(int index) {
+        if (!this.Headers[index].IsUserModifiable) return;
+        this.Headers.RemoveAt(index);
     }
 
     private void CreateNew(bool focusOnName) {

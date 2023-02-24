@@ -3,7 +3,6 @@
 using System.Reflection;
 using Microsoft.JSInterop;
 using Platform;
-using Windows.ApplicationModel;
 
 internal class AssetManager : IAssetManager {
 	private readonly List<string> ScriptsToLoad = new();

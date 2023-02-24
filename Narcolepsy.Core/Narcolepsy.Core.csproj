@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -6,7 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+	<JsDep Include="Typescript\src\**\*.ts" />
+	<JsDep Include="Typescript\package.json" />
+	<JsDep Include="Typescript\tsconfig.json" />
+	<JsDep Include="Typescript\webpack.config.js" />
+  </ItemGroup>
 
+  <Target Name="JsBuild" BeforeTargets="Compile" Inputs="@(JsDep)" Outputs="wwwroot\script\index.js">
+	<RemoveDir Directories="wwwroot\script" />
+	<Exec Command="yarn build:dev" Condition="'$(Configuration)' == 'Debug'" WorkingDirectory="Typescript" />
+	<Exec Command="yarn build" Condition="'$(Configuration)' == 'Release'" WorkingDirectory="Typescript" />
+  </Target>
+  
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>

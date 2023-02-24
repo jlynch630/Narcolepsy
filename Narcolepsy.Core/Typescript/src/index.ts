@@ -1,3 +1,7 @@
+//@ts-ignore
+import * as languages from 'monaco-editor/esm/vs/editor/common/languages';
+
+(window as any).langz = languages;
 export async function createEditor(element: HTMLElement, language: string, isReadOnly: boolean, initialValue?: string) {
 	const monaco = await import('monaco-editor');
 	return (window as any).ed = monaco.editor.create(element, {
@@ -18,8 +22,11 @@ export async function createModel(text: string, language: string) {
 
 export async function colorize(text: string, language: string) {
 	const monaco = await import('monaco-editor');
-
-	return monaco.editor.colorize(text, language, null);
+	(window as any).onaco = monaco;
+	// json is broken
+	// see https://github.com/microsoft/monaco-editor/issues/3105
+	const trueLanguageId = language === "json" ? "jsonc" : language;
+	return monaco.editor.colorize(text, trueLanguageId, null);
 }
 
 export async function format(text: string, extension?: string) {
