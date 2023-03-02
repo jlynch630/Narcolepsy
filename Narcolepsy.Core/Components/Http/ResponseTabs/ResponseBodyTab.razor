@@ -5,12 +5,12 @@
 @inject IJSRuntime JsRuntime
 
 <div class="body-tab">
-    <div class="view-selection">
-        <select @bind="CurrentViewType">
+    <div class="view-config">
+        <Dropdown @bind-Value="CurrentViewType" class="dropdown">
             @foreach (ViewSelection EnabledView in EnabledViews) {
-                <option value="@EnabledView">@EnabledView.ToString()</option>
+                <Option Value="@EnabledView">@EnabledView.ToString()</Option>
             }
-        </select>
+        </Dropdown>
     </div>
     <div class="view">
         @switch (CurrentViewType) {

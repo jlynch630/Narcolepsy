@@ -8,14 +8,13 @@
 
     internal class PluginManager {
 		private static readonly Lazy<Assembly[]> PluginAssemblies = new(PluginManager.FindPluginAssemblies);
-		private static readonly IPluginSetup[] DefaultPluginSetups = Array.Empty<IPluginSetup>();
+		private static readonly IPluginSetup[] DefaultPluginSetups = new[] { new CorePluginServices() };
 
         private readonly RequestManager RequestManager;
         private readonly AssetManager AssetManager;
 
         private LoadedPlugin[] LoadedPluginList;
         private bool HasInitialized = false;
-
 
         public PluginManager(RequestManager requestManager, AssetManager assetManager) {
 	        this.RequestManager = requestManager;

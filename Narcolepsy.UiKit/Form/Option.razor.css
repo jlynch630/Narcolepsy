@@ -1,0 +1,15 @@
+﻿.option {
+	padding: 4px 8px;
+	cursor: pointer;
+	font-size: 0.9em;
+	background: white;
+	transition: background 75ms ease-out;
+}
+
+	.option:hover {
+		background: rgba(0,0,0,0.1);
+	}
+
+	.option:active {
+		background: rgba(0,0,0,0.2);
+	}

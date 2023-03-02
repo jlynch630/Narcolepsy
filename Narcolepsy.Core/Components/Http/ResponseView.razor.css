@@ -1,9 +1,9 @@
 ﻿.response-view {
 	border-left: 1px solid var(--color-gray);
 	grid-area: response-tabs;
-
 	display: grid;
 	grid: "content" 1fr / 1fr;
+	overflow: hidden;
 }
 
 .response-error-view {

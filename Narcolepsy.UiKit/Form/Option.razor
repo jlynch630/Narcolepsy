@@ -1,0 +1,16 @@
+﻿@inherits StyledHtmlComponent
+@typeparam TValue
+
+<div @attributes="Attributes" class="@GetClassName("option")" @onclick="Select">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public TValue Value { get; set; }
+
+    [CascadingParameter]
+    public Dropdown<TValue> Dropdown { get; set; }
+
+    private Task Select() => this.Dropdown.SelectOption(this.Value);
+}
