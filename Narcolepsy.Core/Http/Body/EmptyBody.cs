@@ -6,6 +6,6 @@
     using System.Threading.Tasks;
 
     internal class EmptyBody : IHttpBody {
-        public Task<Stream> GetStreamAsync() => Task.FromResult(Stream.Null);
+        public ValueTask<Stream> GetStreamAsync() => ValueTask.FromResult(Stream.Null);
     }
 }

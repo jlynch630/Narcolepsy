@@ -1,5 +1,6 @@
 ﻿@using System.Text;
 @using System.Security.Authentication;
+@using Narcolepsy.Core.Http.Exceptions;
 <div class="response-view">
     <Tabs Context="Context"
           Configuration="Configuration"
@@ -76,6 +77,10 @@
             HttpRequestException _ when ExceptionMessage.Contains("did not properly respond after a period of time") => (DefaultIcon, "There was an error connecting to the server", DefaultHelp),
             TaskCanceledException _ when ExceptionMessage.Contains("A task was canceled") || ExceptionMessage.Contains("The operation was canceled") => ("cancel", "Request Canceled", ""),
             TaskCanceledException _ when ExceptionMessage.Contains("due to the configured HttpClient.Timeout") => ("schedule", "Request Timed Out", "The request took too long to complete. Try increasing the request timeout"),
+            InvalidRequestException e => e.Type switch {
+                InvalidRequestType.Headers => ("list_alt", "Invalid Request Headers", "Check that the request header names and values are correct and try again"),
+                _ => (DefaultIcon, DefaultMessage, DefaultHelp)
+            },
             _ => (DefaultIcon, DefaultMessage, DefaultHelp)
         };
     }

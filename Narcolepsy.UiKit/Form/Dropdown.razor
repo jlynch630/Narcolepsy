@@ -1,0 +1,39 @@
+@using Microsoft.JSInterop;
+@inherits StyledHtmlComponent
+@attribute [CascadingTypeParameter(nameof(TValue))]
+@typeparam TValue
+@inject IJSRuntime JSRuntime;
+
+<div @attributes="Attributes" class="@GetClassName($"dropdown-container")" tabindex="-1" @ref="ContainerRef">
+    <div class="selected">
+        @if (SelectedContent is not null) {
+            @SelectedContent
+        } else {
+            <span class="selected-item-text">@Value.ToString()</span>
+        }
+    </div>
+    <div class="option-container">
+        <CascadingValue Value="this">
+            @ChildContent
+        </CascadingValue>
+    </div>
+</div>
+
+@code {
+    private bool Active = false;
+    private ElementReference ContainerRef;
+
+    [Parameter]
+    public RenderFragment<TValue>? SelectedContent { get; set; }
+
+    [Parameter]
+    public TValue Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    public async Task SelectOption(TValue itemValue) {
+        await this.JSRuntime.InvokeVoidAsync("narcolepsy_ui_blur", ContainerRef);
+        await this.ValueChanged.InvokeAsync(itemValue);
+    }
+}

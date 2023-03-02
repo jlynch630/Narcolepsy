@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Platform", "Narc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Core", "Narcolepsy.Core\Narcolepsy.Core.csproj", "{F926F61E-92CA-4820-8512-062260939C57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.UiKit", "Narcolepsy.UiKit\Narcolepsy.UiKit.csproj", "{6E48C268-2ECC-4F35-A7FA-F2327D29737F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.UiKit", "Narcolepsy.UiKit\Narcolepsy.UiKit.csproj", "{6E48C268-2ECC-4F35-A7FA-F2327D29737F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

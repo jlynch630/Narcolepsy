@@ -1,5 +1,6 @@
 ﻿namespace Narcolepsy.Core.Http;
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -46,6 +47,9 @@ public partial record HttpResponse {
         this.Error = error;
         this.StringValue = new Lazy<string>(this.GetStringBody);
     }
+
+    public static HttpResponse CreateErrorResponse(RequestExecutionError error, HttpRequestMessage? request = null) => new HttpResponse(default, default, request, 0, "", Array.Empty<HttpResponseHeader>(), Array.Empty<byte>(),
+                error);
 
     private string GetStringBody() => this.GetResponseEncoding().GetString(this.ResponseBody);
 

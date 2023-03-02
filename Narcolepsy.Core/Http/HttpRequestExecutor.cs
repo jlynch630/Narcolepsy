@@ -27,7 +27,7 @@ internal class HttpRequestExecutor {
                 await Response.Content.ReadAsByteArrayAsync(),
                 null);
         } catch (Exception e) {
-            return new HttpResponse(default, default, request, 0, "", Array.Empty<HttpResponseHeader>(), Array.Empty<byte>(),
+            return HttpResponse.CreateErrorResponse(
                 new RequestExecutionError(
                     null,
                     null,

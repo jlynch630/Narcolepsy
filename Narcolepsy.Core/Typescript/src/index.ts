@@ -1,7 +1,3 @@
-//@ts-ignore
-import * as languages from 'monaco-editor/esm/vs/editor/common/languages';
-
-(window as any).langz = languages;
 export async function createEditor(element: HTMLElement, language: string, isReadOnly: boolean, initialValue?: string) {
 	const monaco = await import('monaco-editor');
 	return (window as any).ed = monaco.editor.create(element, {
@@ -48,4 +44,8 @@ export async function format(text: string, extension?: string) {
 	} catch {
 		return text;
 	}
+}
+
+export function blur(el: HTMLElement) {
+	el.blur();
 }

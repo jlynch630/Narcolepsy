@@ -7,7 +7,7 @@ public partial record HttpHeader(string Name, string Value, bool IsEnabled, bool
 
     public bool IsNameValid => ValidNameRegex.IsMatch(Name);
 
-    public bool IsValueValid => true;
+    public bool IsValueValid => true; // todo
 
     [GeneratedRegex("^[!#$%&'*+\\-.0123456789A-Z^_`a-z|]*$")]
     private static partial Regex GetValidTokenRegex();
