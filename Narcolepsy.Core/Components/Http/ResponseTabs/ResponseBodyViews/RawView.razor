@@ -5,7 +5,7 @@
 <div class="container">
     @if (IsBinaryResponse) {
         <div class="download-container">
-            <h3 class="filename">@InferFilename()</h3>
+            <h3 class="filename">@InferredFilename</h3>
             <Button @onclick="SaveFile">Save As</Button>
             <p class="note">
                 This file seems like binary content.
@@ -28,6 +28,7 @@
     private MarkupString ColorizedResponse;
 
     private bool IsBinaryResponse;
+    private string InferredFilename;
 
     private NarcolepsyJs JsService;
 
@@ -52,13 +53,14 @@
 
         if (this.IsBinaryResponse) {
             this.ColorizedResponse = default;
+            this.InferredFilename = this.InferFilename();
             await this.InvokeAsync(this.StateHasChanged);
             return;
         }
 
         // very easy, just colorize and set
         MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(response.ResponseHeaders.GetHeaderValue("Content-Type"));
-        
+
         this.ColorizedResponse = await this.JsService.Colorize(response.BodyText, Language.Id);
         await this.InvokeAsync(this.StateHasChanged);
     }
@@ -71,7 +73,11 @@
 
     private async Task SaveFile() {
         if (this.Context.Response.Value is null) return;
-        await FileSaver.Default.SaveAsync(InferFilename(), new MemoryStream(this.Context.Response.Value.ResponseBody), default);
+        try {
+            await FileSaver.Default.SaveAsync("/", InferredFilename, new MemoryStream(this.Context.Response.Value.ResponseBody), default);
+        } catch (FolderPickerException) {
+            // just means it was canceled, ignore
+        }
     }
 
     private string InferFilename() {
