@@ -1,4 +1,5 @@
-﻿namespace Narcolepsy.Core.Http.Body {
+﻿namespace Narcolepsy.Core.Http.Body
+{
     using System;
     using System.Collections.Generic;
     using System.Linq;

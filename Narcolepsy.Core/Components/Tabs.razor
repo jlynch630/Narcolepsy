@@ -1,8 +1,9 @@
-﻿@using Narcolepsy.Core.Tabs
+﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
+@using Narcolepsy.Core.Renderables.Tabs
 <div class="tabs@(ClassName is null ? "" : $" {ClassName}")" style=@(GridArea is null ? "" : $"grid-area: {GridArea}")>
     <div class="tab-list">
         @foreach (ITab<IHttpRequestContext> Tab in TabList) {
-            <button class="tab-button @(Tab == ActiveTab ? "active" : "")" @onclick="() => ActiveTab = Tab">
+            <button class="tab-button @(Tab == ActiveTab ? "active" : "")" @onclick="() => SetActiveTab(Tab)">
                 @Tab.Title
             </button>
         }
@@ -16,9 +17,6 @@
 
 @code {
     [Parameter]
-    public IHttpRequestContext Context { get; set; }
-
-    [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
     [Parameter]
@@ -30,12 +28,30 @@
     [Parameter]
     public string? ClassName { get; set; }
 
+    [Parameter]
+    public string? StateId { get; set; }
+
     private ITab<IHttpRequestContext>? ActiveTab;
+
+    private void SetActiveTab(ITab<IHttpRequestContext> newActive) {
+        this.ActiveTab = newActive;
+        if (this.StateId is not null)
+            this.Context.State.Add(this.StateId, newActive.Title);
+    }
 
     protected override void OnParametersSet() {
         base.OnParametersSet();
 
         this.ActiveTab ??= this.TabList[0];
+    }
+
+    protected override async Task OnContextChangedAsync() {
+        await base.OnContextChangedAsync();
+
+        if (this.StateId is null) return;
+        string? SetTab = this.Context.State.Get<string?>(this.StateId, null);
+
+        this.ActiveTab = SetTab is null ? this.TabList[0] : this.TabList.FirstOrDefault(t => t.Title == SetTab) ?? this.TabList[0];
     }
 
 }

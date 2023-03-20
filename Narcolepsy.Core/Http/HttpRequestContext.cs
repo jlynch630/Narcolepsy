@@ -1,17 +1,26 @@
 ﻿namespace Narcolepsy.Core.Http;
 
 using Body;
-using Narcolepsy.Core.Http.Exceptions;
 using Narcolepsy.Platform.Requests;
 using Platform.State;
 
-internal class HttpRequestContext : IHttpRequestContext {
+internal class HttpRequestContext : RequestContext<HttpRequestContextSnapshot>, IHttpRequestContext {
     private readonly MutableState<HttpResponse?> MutableResponse = new(null);
     private readonly HttpRequestExecutor Executor;
 
-    public HttpRequestContext() => this.Executor = HttpRequestExecutor.Instance;
+    public HttpRequestContext(HttpRequestContextSnapshot? snapshot) {
+        this.Executor = HttpRequestExecutor.Instance;
 
-    public MutableState<string> Name { get; } = new("");
+        if (snapshot is null) return;
+        this.Name.Value = snapshot.Name;
+        this.Url.Value = snapshot.Url;
+        this.Method.Value = snapshot.Method;
+        this.Body.Value = snapshot.Body;
+        foreach (HttpHeader Header in snapshot.Headers)
+            this.Headers.Add(Header);
+        this.MutableResponse.Value = snapshot.Response;
+        this.State = snapshot.State;
+    }
 
     public MutableState<string> Url { get; } = new("");
 
@@ -23,55 +32,18 @@ internal class HttpRequestContext : IHttpRequestContext {
 
     public IReadOnlyState<HttpResponse?> Response => this.MutableResponse;
 
-    public async Task Execute(CancellationToken token) {
-        try {
-            HttpContent Content = new StreamContent(await this.Body.Value.GetStreamAsync());
+	public StateDictionary State { get; } = new();
 
-            this.AssertHeadersValid();
-
-            // do content headers first
-            foreach (HttpHeader Header in this.Headers.Value.Where(
-                         h => h.IsEnabled && h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
-                Content.Headers.Add(Header.Name, Header.Value);
-
-            // then other headers
-            HttpRequestMessage Message = new() {
-                Method = new HttpMethod(this.Method.Value),
-                RequestUri = new Uri(this.Url.Value),
-                Content = Content
-            };
-
-            foreach (HttpHeader Header in this.Headers.Value.Where(
-                         h => h.IsEnabled && !h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
-                Message.Headers.Add(Header.Name, Header.Value);
-
-            this.MutableResponse.Value = await this.Executor.Execute(Message, token);
-        } catch (Exception e) {
-            this.MutableResponse.Value = HttpResponse.CreateErrorResponse(
-                new RequestExecutionError(
-                    null,
-                    null,
-                    e
-                ));
-        }
+	public async Task Execute(CancellationToken token) {
+        this.MutableResponse.Value = await this.Executor.ExecuteAsync(this, token);
     }
 
-    private void AssertHeadersValid() {
-        HttpHeader[] InvalidHeaders = this.Headers.Value.Where(h => !h.IsValueValid || !h.IsNameValid).ToArray();
-        if (!InvalidHeaders.Any()) return;
-
-        string[] InvalidNames = InvalidHeaders.Where(h => !h.IsNameValid).Select(h => $"\"{h.Name}\"").ToArray();
-        string[] InvalidValues = InvalidHeaders.Where(h => !h.IsValueValid).Select(h => $"\"{h.Name}\"").ToArray();
-        string NameError = InvalidNames.Length switch {
-            0 => "",
-            1 => $"Header {InvalidNames[0]} has an invalid name.",
-            _ => $"Headers {String.Join(", ", InvalidNames)} have invalid names.",
-        };
-        string ValueError = InvalidValues.Length switch {
-            0 => "",
-            1 => $"Header {InvalidValues[0]} has an invalid value.",
-            _ => $"Headers {String.Join(", ", InvalidValues)} have invalid values.",
-        };
-        throw new InvalidRequestException(InvalidRequestType.Headers, (NameError + " " + ValueError).Trim());
-    }
+    public override HttpRequestContextSnapshot Save() => new(
+        this.Name.Value,
+        this.Url.Value,
+        this.Method.Value,
+        this.Body.Value,
+        this.Headers.Value.ToArray(),
+        this.Response.Value,
+        this.State);
 }

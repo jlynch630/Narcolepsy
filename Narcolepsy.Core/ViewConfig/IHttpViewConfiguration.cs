@@ -2,8 +2,9 @@
 
 using Microsoft.AspNetCore.Components;
 using Narcolepsy.Core.Http;
+using Narcolepsy.Core.Renderables.BodyEditors;
+using Narcolepsy.Core.Renderables.Tabs;
 using Narcolepsy.Platform.Rendering;
-using Tabs;
 
 public interface IHttpViewConfiguration {
     public IHttpViewConfiguration AddHttpMethod(string name);
@@ -19,4 +20,8 @@ public interface IHttpViewConfiguration {
     public IHttpViewConfiguration AddResponseInfoBox(IRenderable<HttpResponse> infoBox);
 
     public IHttpViewConfiguration AddResponseInfoBox<TComponent>() where TComponent : IComponent;
+
+    public IHttpViewConfiguration AddRequestBodyEditor(IBodyEditor editor);
+
+    public IHttpViewConfiguration AddRequestBodyEditor<TComponent>(string name) where TComponent : IComponent;
 }

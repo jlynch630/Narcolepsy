@@ -1,3 +1,18 @@
-﻿body
-{
+﻿::deep .dropdown {
+	border-top: none !important;
+	border-left: none !important;
+	border-bottom: none !important;
+}
+
+.toolbar {
+	background: var(--color-lighter-gray);
+	border-top: 1px solid var(--color-gray);
+	border-bottom: 1px solid var(--color-gray);
+}
+
+.request-body {
+	display: grid;
+	grid-template-rows: auto 1fr;
+	height: 100%;
+	overflow: hidden;
 }

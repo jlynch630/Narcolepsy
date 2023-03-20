@@ -1,0 +1,28 @@
+﻿.request-list-item {
+	padding: 4px 8px;
+	font-size: 0.9em;
+	user-select: none;
+	cursor: pointer;
+	transition: background 100ms ease;
+}
+
+	.request-list-item.active {
+		background: var(--color-primary);
+		color: var(--color-primary-text);
+	}
+
+	.request-list-item.active:hover {
+		background: var(--color-primary-dark);
+	}
+
+		.request-list-item.active:active {
+			background: var(--color-primary-darker);
+		}
+
+	.request-list-item:hover {
+		background: rgba(0,0,0,.1);
+	}
+
+	.request-list-item:active {
+		background: rgba(0,0,0,0.25);
+	}

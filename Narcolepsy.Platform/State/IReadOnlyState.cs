@@ -3,5 +3,13 @@
 public interface IReadOnlyState<TValue> {
 	public TValue Value { get; }
 
-	public event EventHandler<TValue>? ValueChanged;
+	public event EventHandler<StateChangeEventArgs<TValue>>? ValueChanged;
+}
+
+public class StateChangeEventArgs<T> : EventArgs {
+	public T Value { get; }
+
+    public StateChangeEventArgs(T value) {
+        this.Value = value;
+    }
 }

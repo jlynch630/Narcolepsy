@@ -1,7 +1,9 @@
 ﻿namespace Narcolepsy.App;
 
 using Narcolepsy.App.Plugins;
+using Narcolepsy.App.Services;
 using Narcolepsy.Platform.Requests;
+using Narcolepsy.Platform.Serialization;
 
 public static class MauiProgram {
 	public static MauiApp CreateMauiApp() {
@@ -20,10 +22,12 @@ public static class MauiProgram {
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
-        builder.Services.AddSingleton<RequestManager>();
         builder.Services.AddSingleton<AssetManager>();
         builder.Services.AddSingleton<PluginManager>();
-		PluginManager.InitializePluginServices(builder.Services);
+        builder.Services.AddSingleton<SerializationManager>();
+        builder.Services.AddSingleton<RequestManager>();
+        builder.Services.AddSingleton<RequestStorage>();
+        PluginManager.InitializePluginServices(builder.Services);
 
         return builder.Build();
     }

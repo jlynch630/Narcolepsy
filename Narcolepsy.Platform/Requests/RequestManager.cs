@@ -1,33 +1,40 @@
 ﻿namespace Narcolepsy.Platform.Requests;
 
 using Microsoft.AspNetCore.Components;
+using Narcolepsy.Platform.Serialization;
 
-internal delegate Request RequestFactory(string name);
+internal delegate Task<Request> RequestFactory(string? name, byte[]? serialized);
 
 public class RequestManager : IRequestManager {
 	private readonly Dictionary<string, RequestFactory> RequestFactories = new();
 
 	private readonly Dictionary<string, object> ViewConfigurations = new();
 
-	public void RegisterType<TContext, TImplementation, TView, TViewConfiguration>(string name)
+	private SerializationManager SerializationManager;
+
+	public RequestManager(SerializationManager serializationManager) {
+		this.SerializationManager = serializationManager;
+	}
+
+    public void RegisterType<TContext, TSaveState, TView, TViewConfiguration>(string name, Func<TSaveState?, TContext> contextFactory, TViewConfiguration viewConfig)
 		where TContext : IRequestContext
-		where TImplementation : TContext, new()
-		where TView : IComponent
-		where TViewConfiguration : notnull, new() {
-        this.RegisterType<TContext, TView, TViewConfiguration>(name, () => new TImplementation(), new TViewConfiguration());
-    }
-
-    public void RegisterType<TContext, TView, TViewConfiguration>(string name, Func<TContext> contextFactory, TViewConfiguration viewConfig) where TContext : IRequestContext where TView : IComponent where TViewConfiguration : notnull {
+        where TSaveState : class
+        where TView : IComponent
+		where TViewConfiguration : notnull {
         IViewBuilder ViewBuilder = ViewBuilder<TViewConfiguration>.Create<TView>(viewConfig);
-        Request MakeRequest(string reqName) {
-            TContext RequestContext = contextFactory();
-			RequestContext.Name.Value = reqName;
+        async Task<Request> MakeRequestAsync(string? reqName, byte[]? serialized) {
+            TContext RequestContext = serialized is null
+				? contextFactory(null)
+				: contextFactory(await this.SerializationManager.DeserializeAsync<TSaveState>(serialized));
 
-            return new Request(RequestContext, ViewBuilder);
+			if (reqName is not null)
+				RequestContext.Name.Value = reqName;
+
+            return new Request(name, RequestContext, ViewBuilder);
         }
 
         this.ViewConfigurations.Add(name, viewConfig);
-        this.RequestFactories.Add(name, MakeRequest);
+        this.RequestFactories.Add(name, MakeRequestAsync);
     }
 
     public void Configure<TViewConfiguration>(string name, Action<TViewConfiguration> buildDelegate) {
@@ -41,10 +48,17 @@ public class RequestManager : IRequestManager {
 		buildDelegate(ViewConfig);
 	}
 
-	public Request CreateRequest(string typeName, string name) {
+	public Task<Request> CreateRequestAsync(string typeName, string name) {
 		if (!this.RequestFactories.TryGetValue(typeName, out RequestFactory? Factory))
 			throw new NotImplementedException();
 
-		return Factory(name);
+		return Factory(name, null);
 	}
+
+    public Task<Request> CreateRequestAsync(RequestSnapshot snapshot) {
+        if (!this.RequestFactories.TryGetValue(snapshot.RequestType, out RequestFactory? Factory))
+            throw new NotImplementedException();
+
+        return Factory(null, snapshot.SaveState);
+    }
 }

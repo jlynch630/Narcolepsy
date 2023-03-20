@@ -8,8 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Narcolepsy.Core.Components.Http.InfoBoxes;
 using Narcolepsy.Core.Components.Http.RequestTabs;
 using Narcolepsy.Core.Components.Http.ResponseTabs;
+using Narcolepsy.Core.Renderables.BodyEditors;
+using Narcolepsy.Platform.Serialization;
 using Platform;
 using Platform.Extensions;
+using System;
 using ViewConfig;
 
 public class CorePlugin : IPlugin {
@@ -22,9 +25,9 @@ public class CorePlugin : IPlugin {
     public async Task InitializeAsync(NarcolepsyContext context) {
         HttpViewConfiguration Config = new();
         context.Requests
-            .RegisterType<IHttpRequestContext, HttpView, IHttpViewConfiguration>(
+            .RegisterType<IHttpRequestContext, HttpRequestContextSnapshot, HttpView, IHttpViewConfiguration>(
                 "HTTP",
-                () => new HttpRequestContext(),
+                (snapshot) => new HttpRequestContext(snapshot),
                 Config);
 
         context.Requests.ConfigureHttp(config => {
@@ -38,15 +41,23 @@ public class CorePlugin : IPlugin {
                 .AddHttpMethod("HEAD");
 
             config
+                .AddRequestTab<RequestBodyTab>("Body")
                 .AddRequestTab<RequestHeaderTab>("Headers");
 
             config
                 .AddResponseTab<ResponseBodyTab>("Body")
                 .AddResponseTab<ResponseHeaderTab>("Headers");
 
-            config.AddResponseInfoBox<StatusCodeInfo>();
-            config.AddResponseInfoBox<TimeInfo>();
-            config.AddResponseInfoBox<ResponseSizeInfo>();
+            config
+                .AddResponseInfoBox<StatusCodeInfo>()
+                .AddResponseInfoBox<TimeInfo>()
+                .AddResponseInfoBox<ResponseSizeInfo>();
+
+            config
+                .AddRequestBodyEditor<EmptyBodyView>("No Body")
+                .AddCodeBodyEditor("JSON", "json", "application/json; charset=utf-8")
+                .AddCodeBodyEditor("XML", "xml", "application/xml; charset=utf-8")
+                .AddCodeBodyEditor("Plain Text", "plaintext", "text/plain; charset=utf-8");
         });
 
         context.Assets.InjectScript("script/index.js");

@@ -1,7 +1,7 @@
 ﻿namespace Narcolepsy.Core.Http;
 
-using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 public partial record HttpResponse {
@@ -25,8 +25,10 @@ public partial record HttpResponse {
 
     public RequestExecutionError? Error { get; }
 
+    [JsonIgnore]
     public HttpRequestMessage? RequestMessage { get; }
 
+    [JsonIgnore]
     public string BodyText => this.StringValue.Value;
 
     public HttpResponse(DateTime requestDate,

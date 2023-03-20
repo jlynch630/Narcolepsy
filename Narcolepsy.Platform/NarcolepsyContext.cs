@@ -1,13 +1,12 @@
-﻿namespace Narcolepsy.Platform
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Runtime.InteropServices;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Narcolepsy.Platform.Requests;
+﻿namespace Narcolepsy.Platform;
+using System;
+using System.Runtime.InteropServices;
+using Narcolepsy.Platform.Requests;
+using Narcolepsy.Platform.Serialization;
 
-    public record NarcolepsyContext(Version AppVersion, OSPlatform Platform, IRequestManager Requests, IAssetManager Assets) {
-	}
-}
+public record NarcolepsyContext(
+	Version AppVersion,
+	OSPlatform Platform,
+	IRequestManager Requests,
+	IAssetManager Assets,
+	ISerializationManager Serialization);

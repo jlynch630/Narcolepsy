@@ -7,9 +7,9 @@
 <div @attributes="Attributes" class="@GetClassName($"dropdown-container")" tabindex="-1" @ref="ContainerRef">
     <div class="selected">
         @if (SelectedContent is not null) {
-            @SelectedContent
+            @SelectedContent(this.Value)
         } else {
-            <span class="selected-item-text">@Value.ToString()</span>
+            <span class="selected-item-text">@(DisplayTextSelector is null ? Value?.ToString() : DisplayTextSelector(Value))</span>
         }
     </div>
     <div class="option-container">
@@ -22,6 +22,9 @@
 @code {
     private bool Active = false;
     private ElementReference ContainerRef;
+
+    [Parameter]
+    public Func<TValue, string>? DisplayTextSelector { get; set; }
 
     [Parameter]
     public RenderFragment<TValue>? SelectedContent { get; set; }

@@ -1,11 +1,13 @@
-﻿@using System.Text;
+﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
+@using System.Text;
 @using System.Security.Authentication;
 @using Narcolepsy.Core.Http.Exceptions;
 <div class="response-view">
     <Tabs Context="Context"
           Configuration="Configuration"
           TabList="Configuration.ResponseTabs"
-          GridArea="content" />
+          GridArea="content"
+          StateId="http-tab-list-response" />
           
     @if (Context.Response.Value?.Error is not null) {
         RequestExecutionError Error = Context.Response.Value?.Error!;
@@ -38,9 +40,6 @@
 
 @code {
     [Parameter]
-    public IHttpRequestContext Context { get; set; }
-
-    [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
 #if DEBUG
@@ -51,7 +50,7 @@
 
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.Context.Response.ValueChanged += (_, r) => this.InvokeAsync(this.StateHasChanged);
+        this.UpdateOnChange(ctx => ctx.Response);
     }
 
     private (string Icon, string Message, string Help) GetErrorText(RequestExecutionError error) {

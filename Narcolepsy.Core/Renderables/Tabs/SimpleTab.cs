@@ -1,4 +1,4 @@
-﻿namespace Narcolepsy.Core.Tabs;
+﻿namespace Narcolepsy.Core.Renderables.Tabs;
 
 using Microsoft.AspNetCore.Components;
 using Platform.Rendering;

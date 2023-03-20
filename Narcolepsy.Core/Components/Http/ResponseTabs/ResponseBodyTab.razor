@@ -1,4 +1,5 @@
-﻿@using System.Text
+﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
+@using System.Text
 @using Microsoft.JSInterop
 @using Narcolepsy.Core.Components.Http.ResponseTabs.ResponseBodyViews
 @using Narcolepsy.Core.Interop
@@ -6,7 +7,7 @@
 
 <div class="body-tab">
     <div class="view-config">
-        <Dropdown @bind-Value="CurrentViewType" class="dropdown">
+        <Dropdown Value="CurrentViewType" ValueChanged="ViewTypeChanged" TValue="ViewSelection" class="dropdown">
             @foreach (ViewSelection EnabledView in EnabledViews) {
                 <Option Value="@EnabledView">@EnabledView.ToString()</Option>
             }
@@ -27,9 +28,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public IHttpRequestContext Context { get; set; }
-
     private ViewSelection CurrentViewType = ViewSelection.Preview;
 
     private ViewSelection[] EnabledViews = new[] { ViewSelection.Preview, ViewSelection.Formatted, ViewSelection.Raw };
@@ -57,15 +55,13 @@
 
     private bool Supports(string contentType, string[] supportedTypes) => supportedTypes.Contains(contentType.ToLowerInvariant());
 
-    protected override void OnInitialized() {
-        base.OnInitialized();
-        this.Context.Response.ValueChanged += (_, r) => this.UpdateEnabledViews(r);
-    }
+    protected override async Task OnContextChangedAsync() {
+        await base.OnContextChangedAsync();
 
-    protected override void OnAfterRender(bool firstRender) {
-        base.OnAfterRender(firstRender);
-
-        if (firstRender) this.UpdateEnabledViews(this.Context.Response.Value);
+        // todo: dispose!
+        this.Context.Response.ValueChanged += (_, r) => this.UpdateEnabledViews(r.Value);
+        this.CurrentViewType = this.Context.State.Get("http-response-body-tab", ViewSelection.Preview);
+        this.UpdateEnabledViews(this.Context.Response.Value);
     }
 
     private void UpdateEnabledViews(HttpResponse? response) {
@@ -81,8 +77,13 @@
 
         this.EnabledViews = Supported.ToArray();
 
-        if (!Supported.Contains(this.CurrentViewType)) this.CurrentViewType = this.EnabledViews[0];
+        if (!Supported.Contains(this.CurrentViewType)) this.ViewTypeChanged(this.EnabledViews[0]);
         this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private void ViewTypeChanged(ViewSelection newSelection) {
+        this.CurrentViewType = newSelection;
+        this.Context.State.Add("http-response-body-tab", newSelection);
     }
 
 }

@@ -20,6 +20,13 @@
 	color: #ef6c00;
 }
 
+.status-info {
+	max-width: 250px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .status-code {
 	font-weight: 500;
 }

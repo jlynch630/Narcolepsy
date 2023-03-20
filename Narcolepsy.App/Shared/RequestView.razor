@@ -1,0 +1,40 @@
+﻿@using Narcolepsy.Platform.Collections;
+@inject RequestManager RequestManager
+@inject Services.RequestStorage Storage
+<div class="app-container">
+    <RequestHeader Context="ActiveRequest?.Context" />
+    <RequestList ActiveRequest="ActiveRequest" ActiveRequestChanged="ActiveRequestChanged" Requests="RequestList" OnCreateRequest="CreateRequest" />
+    <main class="request-view-area">
+        @ActiveRequest?.Render()
+    </main>
+</div>
+@code {
+    private List<Request> RequestList = new();
+    private Request ActiveRequest;
+    private Collection Collection;
+
+    protected override async Task OnInitializedAsync() {
+        await base.OnInitializedAsync();
+
+        this.Collection = (await this.Storage.LoadCollectionAsync("default")) ?? new Collection("Default");
+        this.RequestList = (await this.Collection.GetRequestsAsync(this.Storage)).ToList();
+
+        this.ActiveRequest = this.RequestList.FirstOrDefault();
+    }
+
+    private async Task CreateRequest() {
+        Request NewRequest = await this.RequestManager.CreateRequestAsync("HTTP", "New Request");
+        this.RequestList.Add(NewRequest);
+        await this.ActiveRequestChanged(NewRequest);
+    }
+
+    private async Task ActiveRequestChanged(Request newActive) {
+        if (newActive == this.ActiveRequest) return;
+
+        // save the old one!
+        if (this.ActiveRequest is not null)
+            await this.Collection.SaveRequestAsync(this.ActiveRequest, Storage);
+        await this.Storage.SaveCollectionAsync(this.Collection, "default");
+        this.ActiveRequest = newActive;
+    }
+}

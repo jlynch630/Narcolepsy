@@ -1,4 +1,5 @@
-﻿@using CommunityToolkit.Maui.Storage;
+﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
+@using CommunityToolkit.Maui.Storage;
 @using System.Net.Http.Headers;
 @inject IJSRuntime JsRuntime
 
@@ -22,9 +23,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public IHttpRequestContext Context { get; set; }
-
     private MarkupString ColorizedResponse;
 
     private bool IsBinaryResponse;
@@ -34,18 +32,21 @@
     protected override void OnInitialized() {
         base.OnInitialized();
         this.JsService = new NarcolepsyJs(this.JsRuntime);
-        this.Context.Response.ValueChanged += async (_, res) => await this.LoadNewResponse(res);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (!firstRender) return;
+    protected override async Task OnContextChangedAsync() {
+        await base.OnContextChangedAsync();
+        this.Context.Response.ValueChanged += async (_, res) => await this.LoadNewResponse(res.Value);
         await this.LoadNewResponse(this.Context.Response.Value);
     }
 
     private async Task LoadNewResponse(HttpResponse? response) {
-        if (response is null) return;
+        if (response is null) {
+            this.ColorizedResponse = default;
+            this.IsBinaryResponse = false;
+            await this.InvokeAsync(this.StateHasChanged);
+            return;
+        }
 
         // is it text or not
         this.IsBinaryResponse = response.BodyText.Contains("\ufffd");

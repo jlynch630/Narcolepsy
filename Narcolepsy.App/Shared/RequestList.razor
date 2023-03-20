@@ -1,0 +1,21 @@
+﻿@using Narcolepsy.UiKit.Form
+<aside class="request-list">
+    <Button class="add-button" @onclick="OnCreateRequest"><span class="material-symbols-rounded">add</span>&nbsp;<span>Create Request</span></Button>
+    @foreach (Request Request in Requests) {
+        <RequestListItem Request="Request" IsActive="Request == ActiveRequest" OnClick="() => ActiveRequestChanged.InvokeAsync(Request)" />
+    }
+</aside>
+
+@code {
+    [Parameter]
+    public List<Request> Requests { get; set; }
+
+    [Parameter]
+    public Request ActiveRequest { get; set; }
+
+    [Parameter]
+    public EventCallback OnCreateRequest { get; set; }
+
+    [Parameter]
+    public EventCallback<Request> ActiveRequestChanged { get; set; }
+}

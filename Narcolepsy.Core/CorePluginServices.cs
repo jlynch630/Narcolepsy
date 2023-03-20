@@ -5,6 +5,6 @@ using Narcolepsy.Platform;
 
 public class CorePluginServices : IPluginSetup {
     public void ConfigureServices(IServiceCollection services) {
-        services.AddSingleton<NarcolepsyJs>();
+        services.AddScoped<NarcolepsyJs>();
     }
 }

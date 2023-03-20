@@ -1,6 +1,8 @@
+import type { editor } from 'monaco-editor';
+
 export async function createEditor(element: HTMLElement, language: string, isReadOnly: boolean, initialValue?: string) {
 	const monaco = await import('monaco-editor');
-	return (window as any).ed = monaco.editor.create(element, {
+	return monaco.editor.create(element, {
 		value: initialValue,
 		language: language,
 		readOnly: isReadOnly,
@@ -18,11 +20,10 @@ export async function createModel(text: string, language: string) {
 
 export async function colorize(text: string, language: string) {
 	const monaco = await import('monaco-editor');
-	(window as any).onaco = monaco;
+
 	// json is broken
 	// see https://github.com/microsoft/monaco-editor/issues/3105
-	const trueLanguageId = language === "json" ? "jsonc" : language;
-	return monaco.editor.colorize(text, trueLanguageId, null);
+	return monaco.editor.colorize(text, language, null);
 }
 
 export async function format(text: string, extension?: string) {
@@ -48,4 +49,16 @@ export async function format(text: string, extension?: string) {
 
 export function blur(el: HTMLElement) {
 	el.blur();
+}
+
+export function listenToEditorChanges(editor: editor.IStandaloneCodeEditor, ref: IDotNetEditor) {
+	editor.onDidChangeModelContent(() => {
+		ref.invokeMethodAsync("InvokeModelContentChanged", editor.getValue({ lineEnding: "\r\n", preserveBOM: false })).catch(e => {
+			console.error("Error invoking model content change", e)
+		});
+	});
+}
+
+interface IDotNetEditor {
+	invokeMethodAsync(name: string, ...parameters: any[]): Promise<void>;
 }

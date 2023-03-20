@@ -34,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Http\View\" />
     <Folder Include="wwwroot\script\" />
   </ItemGroup>
 </Project>

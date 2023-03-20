@@ -1,10 +1,12 @@
-﻿<div class="url-method-container">
+﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
+@using System.Text.RegularExpressions;
+<div class="url-method-container">
     <select class="method-select" @bind="Context.Method.Value">
         @foreach (string Method in Configuration.AvailableHttpMethods) {
             <option value="@Method">@Method</option>
         }
     </select>
-    <input class="url-input" type="text" @bind="Context.Url.Value"/>
+    <input class="url-input" type="text" value="@Context.Url.Value" @onchange="UrlChanged"/>
     <Button class="execute" @onclick="Execute">
         @if (!IsLoadingRequest) {
             <span>Send</span>
@@ -16,16 +18,18 @@
 </div>
 
 @code {
-
-    [Parameter]
-    public IHttpRequestContext Context { get; set; }
-
     [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
     private bool IsLoadingRequest = false;
 
     private CancellationTokenSource ReqCancelToken;
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        this.UpdateOnChange(ctx => ctx.Url);
+        this.UpdateOnChange(ctx => ctx.Method);
+    }
 
     private async Task Execute() {
         if (this.IsLoadingRequest) {
@@ -41,4 +45,12 @@
         this.IsLoadingRequest = false;
     }
 
+    private async Task UrlChanged(ChangeEventArgs e) {
+        string NewUrl = e.Value?.ToString() ?? "";
+
+        if (!Regex.IsMatch(NewUrl, "^[A-Za-z\\-]+://"))
+            NewUrl = "https://" + NewUrl;
+
+        Context.Url.Value = NewUrl;
+    }
 }

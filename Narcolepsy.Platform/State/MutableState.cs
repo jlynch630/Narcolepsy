@@ -9,9 +9,9 @@ public class MutableState<TValue> : IReadOnlyState<TValue> {
 		get => this.BackingValue;
 		set {
 			this.BackingValue = value;
-			this.ValueChanged?.Invoke(this, value);
+			this.ValueChanged?.Invoke(this, new StateChangeEventArgs<TValue>(value));
 		}
 	}
 
-	public event EventHandler<TValue>? ValueChanged;
+	public event EventHandler<StateChangeEventArgs<TValue>>? ValueChanged;
 }

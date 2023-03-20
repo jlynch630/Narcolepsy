@@ -1,0 +1,69 @@
+﻿@using Narcolepsy.Core.Http;
+@using Narcolepsy.Core.Interop;
+@using Narcolepsy.Core.Http.Body;
+@using System.Collections.ObjectModel;
+@inject NarcolepsyJs JsService;
+
+<div class="editor" @ref="EditorRef"></div>
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    [Parameter]
+    public string LanguageId { get; set; }
+
+    [Parameter]
+    public string ContentType { get; set; }
+
+    private ElementReference EditorRef;
+
+    private MonacoEditor Editor;
+
+    private TextBody Body;
+
+    public override async Task SetParametersAsync(ParameterView parameters) {
+        if (this.ContentType is null && this.LanguageId is null) {
+            await base.SetParametersAsync(parameters);
+            return;
+        }
+
+        bool ShouldUpdateContentType = parameters.GetValueOrDefault<string>(nameof(ContentType)) != this.ContentType;
+        bool ShouldUpdateLanguage = parameters.GetValueOrDefault<string>(nameof(LanguageId)) != this.LanguageId;
+
+        await base.SetParametersAsync(parameters);
+
+        if (Context is not null && ShouldUpdateContentType) {
+            // content type changed! update the header
+            this.UpdateHeader();
+        }
+
+        if (Editor is not null && ShouldUpdateLanguage) {
+            await this.Editor.SetModel(await this.JsService.CreateTextModel(await this.Editor.GetValue(), this.LanguageId));
+        }
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender) return;
+        this.UpdateHeader();
+
+        this.Body = this.Context.Body.Value as TextBody ?? new TextBody();
+        this.Context.Body.Value = this.Body;
+
+        this.Editor = await JsService.CreateEditor(this.EditorRef, this.LanguageId, false, this.Body.BodyContent);
+        this.Editor.ModelContentChanged += (_, value) => {
+            this.Body.BodyContent = value;
+        };
+    }
+
+    private void UpdateHeader() {
+        this.Context.Headers.SetAutoHeader(
+            "Content-Type",
+            this.ContentType,
+            "This header was added automatically based on the request body"
+        );
+    }
+}

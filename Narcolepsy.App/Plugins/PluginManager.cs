@@ -5,6 +5,7 @@
 	using Narcolepsy.Core;
 	using Narcolepsy.Platform;
     using Narcolepsy.Platform.Requests;
+    using Narcolepsy.Platform.Serialization;
 
     internal class PluginManager {
 		private static readonly Lazy<Assembly[]> PluginAssemblies = new(PluginManager.FindPluginAssemblies);
@@ -12,13 +13,15 @@
 
         private readonly RequestManager RequestManager;
         private readonly AssetManager AssetManager;
+		private readonly SerializationManager SerializationManager;
 
         private LoadedPlugin[] LoadedPluginList;
         private bool HasInitialized = false;
 
-        public PluginManager(RequestManager requestManager, AssetManager assetManager) {
+        public PluginManager(RequestManager requestManager, AssetManager assetManager, SerializationManager serializationManager) {
 	        this.RequestManager = requestManager;
             this.AssetManager = assetManager;
+			this.SerializationManager = serializationManager;
         }
 
         public async Task InitializePluginsAsync() {
@@ -53,7 +56,8 @@
 				Assembly.GetCallingAssembly().GetName().Version ?? new Version("0.0.0.0"),
 				Platform,
 				this.RequestManager,
-                this.AssetManager);
+                this.AssetManager,
+				this.SerializationManager);
 		}
 
 		private static IPlugin[] LoadDefaultPlugins() => new IPlugin[] { new CorePlugin() };

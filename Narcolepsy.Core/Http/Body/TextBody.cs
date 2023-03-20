@@ -1,14 +1,10 @@
-﻿namespace Narcolepsy.Core.Http.Body {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.Core.Http.Body;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 
-    public class TextBody : IHttpBody {
-        public string BodyContent { get; set; }
+public class TextBody : IHttpBody {
+    public string BodyContent { get; set; } = String.Empty;
 
-        public ValueTask<Stream> GetStreamAsync() => ValueTask.FromResult((Stream)new MemoryStream(Encoding.UTF8.GetBytes(this.BodyContent)));
-    }
+    public ValueTask<Stream> GetStreamAsync() => ValueTask.FromResult((Stream)new MemoryStream(Encoding.UTF8.GetBytes(this.BodyContent)));
 }

@@ -5,14 +5,17 @@ using Microsoft.AspNetCore.Components;
 public class Request {
 	private readonly IViewBuilder ViewBuilder;
 
-	public Request(IRequestContext context, IViewBuilder viewBuilder) {
+	public Request(string type, IRequestContext context, IViewBuilder viewBuilder) {
+		this.Type = type;
 		this.Context = context;
 		this.ViewBuilder = viewBuilder;
 	}
 
 	public IRequestContext Context { get; }
 
-	public RenderFragment Render() {
+    public string Type { get; }
+
+    public RenderFragment Render() {
 		Type ComponentType = this.ViewBuilder.ComponentType;
 		return builder =>
 		{

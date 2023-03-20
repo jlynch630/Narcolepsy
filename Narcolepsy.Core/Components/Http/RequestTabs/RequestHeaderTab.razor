@@ -32,7 +32,7 @@
     private bool ShouldFocusLastName;
     private bool ShouldFocusLastValue;
 
-    private ObservableCollection<HttpHeader> Headers => this.Context.Headers.MutableValue;
+    private IList<HttpHeader> Headers => this.Context.Headers;
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();

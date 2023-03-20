@@ -2,41 +2,37 @@
 @using Narcolepsy.Platform.Requests
 @using Narcolepsy.App.Plugins
 @using System.Diagnostics;
-@inject Plugins.PluginManager PluginManager;
-@inject RequestManager RequestManager;
+@using Narcolepsy.Platform.Serialization;
+@inject PluginManager PluginManager;
 @inject IJSRuntime JSRuntime;
 @inject AssetManager AssetManager;
 
-<div class="app-container">
-    @if (CurrentRequest is not null) {
-        @CurrentRequest.Render()
-    }
-</div>
+@if (Ready) {
+    <RequestView />
+} else {
+    <Narcolepsy.Core.Components.Spinner />
+}
+
 @code {
-	private Request CurrentRequest = null;
+    private bool Ready = false;
 
-	protected override async Task OnInitializedAsync() {
-		await PluginManager.InitializePluginsAsync();
-		await base.OnInitializedAsync();
-	}
+    protected override async Task OnInitializedAsync() {
+        await PluginManager.InitializePluginsAsync();
+        await base.OnInitializedAsync();
+    }
 
-	public void CreateRequest() {
-		this.CurrentRequest = RequestManager.CreateRequest("HTTP", "Request");
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
 
-	protected override async Task OnAfterRenderAsync(bool firstRender) {
-		await base.OnAfterRenderAsync(firstRender);
+        if (firstRender) {
+            Stopwatch Stop = Stopwatch.StartNew();
+            await this.AssetManager.LoadAllScriptsAsync(this.JSRuntime);
+            await this.AssetManager.LoadAllStylesAsync(this.JSRuntime);
+            Stop.Stop();
+            System.Diagnostics.Debug.WriteLine(Stop.ElapsedMilliseconds);
+            this.Ready = true;
+            this.StateHasChanged();
+        }
 
-		if (firstRender) {
-			Stopwatch Stop = Stopwatch.StartNew();
-			await this.AssetManager.LoadAllScriptsAsync(this.JSRuntime);
-			await this.AssetManager.LoadAllStylesAsync(this.JSRuntime);
-			Stop.Stop();
-			System.Diagnostics.Debug.WriteLine(Stop.ElapsedMilliseconds);
-			this.CreateRequest();
-	        this.StateHasChanged();
-	    }
-
-	}
-
+    }
 }
