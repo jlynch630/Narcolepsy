@@ -9,7 +9,7 @@ public static class MauiProgram {
 	public static MauiApp CreateMauiApp() {
 		MauiAppBuilder builder = MauiApp.CreateBuilder();
 #pragma warning disable MCT001 // `.UseMauiCommunityToolkit()` Not Found on MauiAppBuilder
-        builder
+		builder
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
 			{
@@ -17,7 +17,7 @@ public static class MauiProgram {
 			});
 #pragma warning restore MCT001 // `.UseMauiCommunityToolkit()` Not Found on MauiAppBuilder
 
-        builder.Services.AddMauiBlazorWebView();
+		builder.Services.AddMauiBlazorWebView();
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
