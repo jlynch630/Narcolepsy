@@ -14,6 +14,6 @@
         [Parameter]
         public RenderFragment ChildContent { get; set; }
 
-        protected string GetClassName(string className) => $"{className}{((Attributes?.ContainsKey("class") ?? false) ? " " + Attributes["class"] : "")}";
+        protected string GetClassName(string className = "") => $"{className}{((Attributes?.ContainsKey("class") ?? false) ? " " + Attributes["class"] : "")}";
     }
 }

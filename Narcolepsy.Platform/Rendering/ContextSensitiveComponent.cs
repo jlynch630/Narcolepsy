@@ -18,7 +18,7 @@ public abstract class ContextSensitiveComponent<TContext> : ComponentBase, IDisp
     private List<Action<TContext>> AttachEventHandlerDelegates = new();
 
     public override async Task SetParametersAsync(ParameterView parameters) {
-        TContext? NewContextValue = parameters.GetValueOrDefault<TContext>(nameof(Context));
+        TContext? NewContextValue = parameters.GetValueOrDefault<TContext>(nameof(this.Context));
         bool ContextChanged = !(this.Context?.Equals(NewContextValue) ?? false);
 
         await base.SetParametersAsync(parameters);

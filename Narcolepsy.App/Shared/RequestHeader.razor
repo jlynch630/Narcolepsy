@@ -1,12 +1,14 @@
-﻿@inherits ContextSensitiveComponent<IRequestContext>
-@using Narcolepsy.Platform.Rendering;
+﻿@inherits Narcolepsy.Platform.Rendering.ContextSensitiveComponent<IRequestContext>
 
 <header class="request-info-toolbar">
     <span class="request-name">@Context?.Name.Value</span>
 </header>
+
 @code {
+
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.UpdateOnChange(ctx => ctx.Name);
+        UpdateOnChange(ctx => ctx.Name);
     }
+
 }

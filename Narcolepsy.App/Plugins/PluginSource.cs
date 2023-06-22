@@ -1,12 +1,6 @@
-﻿namespace Narcolepsy.App.Plugins {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using System.Threading.Tasks;
+﻿namespace Narcolepsy.App.Plugins; 
 
-	internal enum PluginSource {
-		BuiltIn,
-		Dynamic
-	}
+internal enum PluginSource {
+    BuiltIn,
+    Dynamic
 }

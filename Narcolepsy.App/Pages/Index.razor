@@ -1,23 +1,27 @@
 ﻿@page "/"
-@using Narcolepsy.Platform.Requests
+@using Narcolepsy.App.Collections
 @using Narcolepsy.App.Plugins
-@using System.Diagnostics;
-@using Narcolepsy.Platform.Serialization;
+@using Narcolepsy.App.Services
+@using System.Diagnostics
 @inject PluginManager PluginManager;
 @inject IJSRuntime JSRuntime;
 @inject AssetManager AssetManager;
+@inject IStorage Storage;
 
 @if (Ready) {
-    <RequestView />
-} else {
-    <Narcolepsy.Core.Components.Spinner />
+    <RequestView Collection="Collection"/>
+}
+else {
+    <Narcolepsy.Core.Components.Spinner/>
 }
 
 @code {
-    private bool Ready = false;
+    private bool Ready;
+    private Collection Collection;
 
     protected override async Task OnInitializedAsync() {
         await PluginManager.InitializePluginsAsync();
+        Collection = await Storage.LoadCollectionAsync("default") ?? new Collection("Default");
         await base.OnInitializedAsync();
     }
 
@@ -26,13 +30,13 @@
 
         if (firstRender) {
             Stopwatch Stop = Stopwatch.StartNew();
-            await this.AssetManager.LoadAllScriptsAsync(this.JSRuntime);
-            await this.AssetManager.LoadAllStylesAsync(this.JSRuntime);
+            await AssetManager.LoadAllScriptsAsync(JSRuntime);
+            await AssetManager.LoadAllStylesAsync(JSRuntime);
             Stop.Stop();
-            System.Diagnostics.Debug.WriteLine(Stop.ElapsedMilliseconds);
-            this.Ready = true;
-            this.StateHasChanged();
+            Debug.WriteLine(Stop.ElapsedMilliseconds);
+            Ready = true;
+            StateHasChanged();
         }
-
     }
+
 }

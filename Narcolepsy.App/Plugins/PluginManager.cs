@@ -1,104 +1,112 @@
-﻿namespace Narcolepsy.App.Plugins {
-	using System.Reflection;
-    using System.Runtime.InteropServices;
+﻿namespace Narcolepsy.App.Plugins;
 
-	using Narcolepsy.Core;
-	using Narcolepsy.Platform;
-    using Narcolepsy.Platform.Requests;
-    using Narcolepsy.Platform.Serialization;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using Core;
+using Platform;
+using Platform.Requests;
+using Platform.Serialization;
+using Thrift;
 
-    internal class PluginManager {
-		private static readonly Lazy<Assembly[]> PluginAssemblies = new(PluginManager.FindPluginAssemblies);
-		private static readonly IPluginSetup[] DefaultPluginSetups = new[] { new CorePluginServices() };
+internal class PluginManager {
+    private static readonly Lazy<Assembly[]> PluginAssemblies = new(PluginManager.FindPluginAssemblies);
+    private static readonly IPluginSetup[] DefaultPluginSetups = { new CorePluginServices() };
 
-        private readonly RequestManager RequestManager;
-        private readonly AssetManager AssetManager;
-		private readonly SerializationManager SerializationManager;
+    private readonly AssetManager AssetManager;
 
-        private LoadedPlugin[] LoadedPluginList;
-        private bool HasInitialized = false;
+    private readonly RequestManager RequestManager;
+    private readonly SerializationManager SerializationManager;
+    private bool HasInitialized;
 
-        public PluginManager(RequestManager requestManager, AssetManager assetManager, SerializationManager serializationManager) {
-	        this.RequestManager = requestManager;
-            this.AssetManager = assetManager;
-			this.SerializationManager = serializationManager;
-        }
+    private LoadedPlugin[] LoadedPluginList;
 
-        public async Task InitializePluginsAsync() {
-			if (this.HasInitialized) return;
-            if (this.LoadedPluginList is null)
-                this.LoadPlugins();
-			
-            NarcolepsyContext Context = this.CreateContext();
-			// then initialize them all
-			foreach (LoadedPlugin Plugin in this.LoadedPluginList)
-				await Plugin.Plugin.InitializeAsync(Context);
-            this.HasInitialized = true;
-        }
+    public PluginManager(RequestManager requestManager, AssetManager assetManager,
+                         SerializationManager serializationManager) {
+        this.RequestManager = requestManager;
+        this.AssetManager = assetManager;
+        this.SerializationManager = serializationManager;
+    }
 
-        public void LoadPlugins() {
-            // first load all our plugins: default + dynamic
-            IEnumerable<LoadedPlugin> Default = PluginManager.LoadDefaultPlugins()
-                .Select(plugin => new LoadedPlugin(plugin, PluginSource.BuiltIn));
+    public static void InitializePluginServices(IServiceCollection services) {
+        // todo: violate srp? refactor?
+        // called during app startup
+        IPluginSetup[] PluginSetups = PluginManager.PluginAssemblies.Value.SelectMany(
+                                                       a => a.ExportedTypes.Where(type =>
+                                                                 typeof(IPluginSetup).IsAssignableFrom(type))
+                                                             .Select(type =>
+                                                                 Activator.CreateInstance(type) as IPluginSetup)
+                                                             .Where(plugin => plugin is not null))
+                                                   .ToArray();
 
-            IEnumerable<LoadedPlugin> Dynamic = PluginManager.LoadDynamicPlugins()
-                .Select(plugin => new LoadedPlugin(plugin, PluginSource.Dynamic));
+        foreach (IPluginSetup Setup in PluginSetups.Concat(PluginManager.DefaultPluginSetups))
+            Setup.ConfigureServices(services);
+    }
 
-            this.LoadedPluginList = Default.Concat(Dynamic).ToArray();
-        }
+    public async Task InitializePluginsAsync() {
+        if (this.HasInitialized) return;
+        if (this.LoadedPluginList is null)
+            this.LoadPlugins();
 
-        private NarcolepsyContext CreateContext() {
-			OSPlatform Platform =
-				new[] { OSPlatform.Windows, OSPlatform.Linux, OSPlatform.OSX, OSPlatform.FreeBSD }.FirstOrDefault(
-					RuntimeInformation.IsOSPlatform);
+        NarcolepsyContext Context = this.CreateContext();
+        // then initialize them all
+        foreach (LoadedPlugin Plugin in this.LoadedPluginList)
+            await Plugin.Plugin.InitializeAsync(Context);
+        this.HasInitialized = true;
+    }
 
-			return new NarcolepsyContext(
-				Assembly.GetCallingAssembly().GetName().Version ?? new Version("0.0.0.0"),
-				Platform,
-				this.RequestManager,
-                this.AssetManager,
-				this.SerializationManager);
-		}
+    public void LoadPlugins() {
+        // first load all our plugins: default + dynamic
+        IEnumerable<LoadedPlugin> Default = PluginManager.LoadDefaultPlugins()
+                                                         .Select(plugin =>
+                                                             new LoadedPlugin(plugin, PluginSource.BuiltIn));
 
-		private static IPlugin[] LoadDefaultPlugins() => new IPlugin[] { new CorePlugin() };
+        IEnumerable<LoadedPlugin> Dynamic = PluginManager.LoadDynamicPlugins()
+                                                         .Select(plugin =>
+                                                             new LoadedPlugin(plugin, PluginSource.Dynamic));
 
-		private static IPlugin[] LoadDynamicPlugins() {
-			// find all the plugins our assemblies have
-			IPlugin[] Plugins = PluginManager.PluginAssemblies.Value.SelectMany(
-					a => a.ExportedTypes.Where(type => typeof(IPlugin).IsAssignableFrom(type))
-						.Select(type => Activator.CreateInstance(type) as IPlugin).Where(plugin => plugin is not null))
-				.ToArray();
+        this.LoadedPluginList = Default.Concat(Dynamic).ToArray();
+    }
 
-			return Plugins;
-		}
+    private static Assembly[] FindPluginAssemblies() {
+        string PluginsDir = PluginManager.GetPluginsDirectory();
 
-		public static void InitializePluginServices(IServiceCollection services) {
-            // todo: violate srp? refactor?
-            // called during app startup
-            IPluginSetup[] PluginSetups = PluginManager.PluginAssemblies.Value.SelectMany(
-                    a => a.ExportedTypes.Where(type => typeof(IPluginSetup).IsAssignableFrom(type))
-                        .Select(type => Activator.CreateInstance(type) as IPluginSetup).Where(plugin => plugin is not null))
-                .ToArray();
+        // find all DLL files in the plugins dir and make them assemblies
+        return Directory.EnumerateFiles(PluginsDir, "*.dll")
+                        .Select(file => new PluginLoadContext(file).LoadPluginAssembly()).ToArray();
+    }
 
-			foreach (IPluginSetup Setup in PluginSetups.Concat(PluginManager.DefaultPluginSetups))
-				Setup.ConfigureServices(services);
-        }
+    private static string GetPluginsDirectory() {
+        // plugins are stored in AppData/Narcolepsy/Plugins
+        string AppDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string PluginFolder = Path.Combine(AppDataRoot, "Narcolepsy", "Plugins");
+        Directory.CreateDirectory(PluginFolder);
 
-		private static Assembly[] FindPluginAssemblies() {
-			string PluginsDir = PluginManager.GetPluginsDirectory();
+        return PluginFolder;
+    }
 
-			// find all DLL files in the plugins dir and make them assemblies
-			return Directory.EnumerateFiles(PluginsDir, "*.dll")
-				.Select(file => new PluginLoadContext(file).LoadPluginAssembly()).ToArray();
-		}
+    private static IPlugin[] LoadDefaultPlugins() => new IPlugin[] { new CorePlugin(), new ThriftPlugin() };
 
-		private static string GetPluginsDirectory() {
-			// plugins are stored in AppData/Narcolepsy/Plugins
-			string AppDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			string PluginFolder = Path.Combine(AppDataRoot, "Narcolepsy", "Plugins");
-			Directory.CreateDirectory(PluginFolder);
+    private static IPlugin[] LoadDynamicPlugins() {
+        // find all the plugins our assemblies have
+        IPlugin[] Plugins = PluginManager.PluginAssemblies.Value.SelectMany(
+                                             a => a.ExportedTypes.Where(type => typeof(IPlugin).IsAssignableFrom(type))
+                                                   .Select(type => Activator.CreateInstance(type) as IPlugin)
+                                                   .Where(plugin => plugin is not null))
+                                         .ToArray();
 
-			return PluginFolder;
-		}
-	}
+        return Plugins;
+    }
+
+    private NarcolepsyContext CreateContext() {
+        OSPlatform Platform =
+            new[] { OSPlatform.Windows, OSPlatform.Linux, OSPlatform.OSX, OSPlatform.FreeBSD }.FirstOrDefault(
+                RuntimeInformation.IsOSPlatform);
+
+        return new NarcolepsyContext(
+            Assembly.GetCallingAssembly().GetName().Version ?? new Version("0.0.0.0"),
+            Platform,
+            this.RequestManager,
+            this.AssetManager,
+            this.SerializationManager);
+    }
 }

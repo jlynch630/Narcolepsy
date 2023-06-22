@@ -1,11 +1,9 @@
 ﻿namespace Narcolepsy.App;
 
-public partial class App : Application
-{
-	public App()
-	{
-		InitializeComponent();
+public partial class App : Application {
+    public App() {
+        this.InitializeComponent();
 
-		MainPage = new MainPage();
-	}
+        this.MainPage = new MainPage();
+    }
 }

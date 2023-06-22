@@ -1,0 +1,74 @@
+.dropdown-button {
+  width: auto;
+  position: relative;
+  outline: none;
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: minmax(max-content, 1fr);
+}
+
+.button-container {
+  display: flex;
+  align-items: stretch;
+  flex-direction: row;
+}
+
+::deep .button {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-right: 1px;
+  padding: 6px 8px 6px 6px;
+  flex-grow: 1;
+}
+
+::deep .arrow-button {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 0;
+}
+::deep .arrow-button span {
+  font-size: 18px;
+}
+
+.option-container {
+  position: absolute;
+  background: white;
+  box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--color-gray-dark);
+  z-index: 100;
+  animation: fade-in 150ms ease-in forwards;
+  border-radius: 2px;
+  grid-row-start: 2;
+  justify-self: center;
+  margin-top: 2px;
+}
+.option-container ::deep hr {
+  margin: 2px 0;
+}
+
+.option-container.hide {
+  animation: fade-out 150ms ease-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1) translateY(10px);
+  }
+}
+
+/*# sourceMappingURL=DropdownButton.razor.css.map */

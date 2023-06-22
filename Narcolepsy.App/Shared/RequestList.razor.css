@@ -8,12 +8,6 @@
 ::deep .add-button {
 	margin: 8px;
 	align-self: stretch;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	padding: 6px;
-	font-size: 0.8em;
-	font-weight: 500;
 }
 
 .add-button .material-symbols-rounded {

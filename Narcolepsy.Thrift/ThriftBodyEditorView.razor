@@ -1,0 +1,94 @@
+@using Narcolepsy.Core.Http
+@if (this.Body is not null) {
+    <div class="req-header-list">
+        <input class="method-name" placeholder="Method Name" @bind="this.Body.MethodName"/>
+
+        @for (int i = 0; i < this.Data.Count; i++) {
+            ThriftData ThriftData = this.Data[i];
+            int DataIndex = i;
+
+            <div class="data-editor">
+                <input @ref="LastIndexInput" type="number" placeholder="Index" class="data-edit index" @onchange="(e) => this.UpdateDataIndex(e, DataIndex)" value="@ThriftData.Index"/>
+                <input @ref="LastValueInput" placeholder="Value" class="data-edit value" @onchange="(e) => this.UpdateDataValue(e, DataIndex)" value="@ThriftData.StringValue"/>
+                <Narcolepsy.UiKit.Form.Dropdown TValue="ThriftDataType" DisplayTextSelector="v => v.ToString()" Value="ThriftData.Type" ValueChanged="(e) => this.UpdateDataType(e, DataIndex)">
+                    @foreach (ThriftDataType Type in Enum.GetValues<ThriftDataType>()) {
+                        <Narcolepsy.UiKit.Form.Option Value="@Type">@Type.ToString()</Narcolepsy.UiKit.Form.Option>
+                    }
+                </Narcolepsy.UiKit.Form.Dropdown>
+                <button class="data-button material-symbols-rounded remove-btn" tabindex="-1" @onclick="() => RemoveData(DataIndex)">close</button>
+            </div>
+        }
+
+        <div class="header-editor new">
+            <input class="header-edit index" placeholder="Index" @onfocus="() => CreateNew(true)"/>
+            <input class="header-edit value" placeholder="Value" @onfocus="() => CreateNew(false)"/>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IHttpRequestContext Context { get; set; }
+
+    private ThriftBody? Body;
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+
+        if (this.Context.Body.Value is ThriftBody Existing)
+            this.Body = Existing;
+        else {
+            this.Body = new ThriftBody();
+            this.Context.Body.Value = this.Body;
+        }
+
+        this.Context.Headers.SetAutoHeader(
+            "Content-Type", 
+            "application/x-thrift", 
+            "This header was added automatically based on the request body");
+    }
+
+    private ElementReference LastIndexInput;
+    private ElementReference LastValueInput;
+    private bool ShouldFocusLastIndex;
+    private bool ShouldFocusLastValue;
+
+    private IList<ThriftData> Data => this.Body.Data;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (this.ShouldFocusLastIndex) {
+            await this.LastIndexInput.FocusAsync();
+            this.ShouldFocusLastIndex = false;
+        }
+
+        if (this.ShouldFocusLastValue) {
+            await this.LastValueInput.FocusAsync();
+            this.ShouldFocusLastValue = false;
+        }
+    }
+
+    private void UpdateDataValue(ChangeEventArgs e, int index) {
+        this.Data[index] = this.Data[index] with { StringValue = e.Value?.ToString() ?? "" };
+    }
+
+    private void UpdateDataIndex(ChangeEventArgs e, int index) {
+        this.Data[index] = this.Data[index] with { Index = Int32.Parse(e.Value?.ToString() ?? "0") };
+    }
+
+    private void RemoveData(int index) {
+        this.Data.RemoveAt(index);
+    }
+
+    private void CreateNew(bool focusOnIndex) {
+        this.Data.Add(new ThriftData(ThriftDataType.Int8, this.Data.Count == 0 ? 1 : (this.Data.Max(d => d.Index) + 1), ""));
+        this.ShouldFocusLastIndex = focusOnIndex;
+        this.ShouldFocusLastValue = !focusOnIndex;
+    }
+
+    private void UpdateDataType(ThriftDataType thriftDataType, int index) {
+        this.Data[index] = this.Data[index] with { Type = thriftDataType };
+    }
+
+}

@@ -1,0 +1,14 @@
+{
+  "SourceFolder": "Styles",
+  "TargetFolder": "wwwroot/css",
+  "Arguments": "--style=compressed",
+  "GenerateScopedCss": true,
+  "ScopedCssFolders": [ "Form", "Typography", "Layout" ],
+  "IncludePaths": [],
+
+  "Configurations": {
+    "Debug": {
+      "Arguments": "--style=expanded"
+    }
+  }
+}

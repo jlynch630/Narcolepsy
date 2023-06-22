@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Core", "Narcolep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.UiKit", "Narcolepsy.UiKit\Narcolepsy.UiKit.csproj", "{6E48C268-2ECC-4F35-A7FA-F2327D29737F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.Thrift", "Narcolepsy.Thrift\Narcolepsy.Thrift.csproj", "{CC72AE8C-2F9E-4698-A64C-3962CF52B01C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{6E48C268-2ECC-4F35-A7FA-F2327D29737F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E48C268-2ECC-4F35-A7FA-F2327D29737F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E48C268-2ECC-4F35-A7FA-F2327D29737F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC72AE8C-2F9E-4698-A64C-3962CF52B01C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC72AE8C-2F9E-4698-A64C-3962CF52B01C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC72AE8C-2F9E-4698-A64C-3962CF52B01C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC72AE8C-2F9E-4698-A64C-3962CF52B01C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

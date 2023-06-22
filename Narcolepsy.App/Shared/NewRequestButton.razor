@@ -1,0 +1,23 @@
+﻿<DropdownButton class="@($"new-req-button {ClassName ?? ""}")" OnPrimaryButtonClick="OnCreate">
+    <ChildContent>
+        <span class="material-symbols-rounded">add</span>&nbsp;<span>Create Request</span>
+    </ChildContent>
+    <ListItems>
+        <DropdownButtonListItem Icon="language">HTTP Request</DropdownButtonListItem>
+        <DropdownButtonListItem Icon="hub">GraphQL Request</DropdownButtonListItem>
+        <DropdownButtonListItem Icon="satellite_alt">RPC Request</DropdownButtonListItem>
+        <Divider/>
+        <DropdownButtonListItem Icon="cloud_download">Install More</DropdownButtonListItem>
+    </ListItems>
+</DropdownButton>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback OnCreate { get; set; }
+
+    [Parameter]
+    public string? ClassName { get; set; }
+
+}

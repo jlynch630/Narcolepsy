@@ -12,16 +12,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.SassCompiler" Version="1.62.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Form\DropdownButton.razor.scss" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="form\DropdownButtonListItem.razor.scss" />
+    <ProjectReference Include="..\Narcolepsy.Core\Narcolepsy.Core.csproj" />
+    <ProjectReference Include="..\Narcolepsy.Platform\Narcolepsy.Platform.csproj" />
+    <ProjectReference Include="..\Narcolepsy.UiKit\Narcolepsy.UiKit.csproj" />
   </ItemGroup>
 
 </Project>

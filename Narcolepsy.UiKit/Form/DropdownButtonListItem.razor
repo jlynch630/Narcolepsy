@@ -1,0 +1,16 @@
+﻿@inherits StyledHtmlComponent
+
+<div class="list-item" @onclick="OnClick">
+    @if (Icon is not null) {
+        <span class="material-symbols-rounded icon">@Icon</span>
+    }
+    <span class="list-item-text">@ChildContent</span>
+</div>
+
+@code {
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+}

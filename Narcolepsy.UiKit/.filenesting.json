@@ -1,0 +1,11 @@
+{
+  "dependentFileProviders": {
+    "add": {
+      "extensionToExtension": {
+        "add": {
+          ".css": [ ".scss" ]
+        }
+      }
+    }
+  }
+}

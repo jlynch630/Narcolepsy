@@ -1,0 +1,25 @@
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  transition: background-color 150ms ease;
+  cursor: pointer;
+}
+.list-item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.list-item:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.list-item .icon {
+  margin-right: 6px;
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 48;
+}
+
+.list-item-text {
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/*# sourceMappingURL=DropdownButtonListItem.razor.css.map */

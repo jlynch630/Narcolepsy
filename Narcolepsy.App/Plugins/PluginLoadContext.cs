@@ -5,36 +5,36 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Narcolepsy.App.Plugins {
-	using System.Reflection;
-	using System.Runtime.Loader;
+namespace Narcolepsy.App.Plugins;
 
-	internal class PluginLoadContext : AssemblyLoadContext {
-		private readonly AssemblyDependencyResolver DependencyResolver;
+using System.Reflection;
+using System.Runtime.Loader;
 
-		private readonly string PluginPath;
+internal class PluginLoadContext : AssemblyLoadContext {
+    private readonly AssemblyDependencyResolver DependencyResolver;
 
-		public PluginLoadContext(string pluginPath) {
-			this.PluginPath = pluginPath;
-			this.DependencyResolver = new AssemblyDependencyResolver(pluginPath);
-		}
+    private readonly string PluginPath;
 
-		public Assembly LoadPluginAssembly() {
-			string PluginName = Path.GetFileNameWithoutExtension(this.PluginPath);
-			if (PluginName is null) throw new ApplicationException("Failed to load plugin");
+    public PluginLoadContext(string pluginPath) {
+        this.PluginPath = pluginPath;
+        this.DependencyResolver = new AssemblyDependencyResolver(pluginPath);
+    }
 
-			AssemblyName Name = new(PluginName);
-			return this.LoadFromAssemblyName(Name);
-		}
+    public Assembly LoadPluginAssembly() {
+        string PluginName = Path.GetFileNameWithoutExtension(this.PluginPath);
+        if (PluginName is null) throw new ApplicationException("Failed to load plugin");
 
-		protected override Assembly Load(AssemblyName assemblyName) {
-			string AssemblyPath = this.DependencyResolver.ResolveAssemblyToPath(assemblyName);
-			return AssemblyPath != null ? this.LoadFromAssemblyPath(AssemblyPath) : null;
-		}
+        AssemblyName Name = new(PluginName);
+        return this.LoadFromAssemblyName(Name);
+    }
 
-		protected override IntPtr LoadUnmanagedDll(string unmanagedDllName) {
-			string LibraryPath = this.DependencyResolver.ResolveUnmanagedDllToPath(unmanagedDllName);
-			return LibraryPath != null ? this.LoadUnmanagedDllFromPath(LibraryPath) : IntPtr.Zero;
-		}
-	}
+    protected override Assembly Load(AssemblyName assemblyName) {
+        string AssemblyPath = this.DependencyResolver.ResolveAssemblyToPath(assemblyName);
+        return AssemblyPath != null ? this.LoadFromAssemblyPath(AssemblyPath) : null;
+    }
+
+    protected override nint LoadUnmanagedDll(string unmanagedDllName) {
+        string LibraryPath = this.DependencyResolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+        return LibraryPath != null ? this.LoadUnmanagedDllFromPath(LibraryPath) : IntPtr.Zero;
+    }
 }

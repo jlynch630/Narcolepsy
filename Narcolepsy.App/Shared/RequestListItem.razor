@@ -1,9 +1,9 @@
-﻿@using Narcolepsy.Platform.Rendering;
-@inherits ContextSensitiveComponent<IRequestContext>
+﻿@inherits Narcolepsy.Platform.Rendering.ContextSensitiveComponent<IRequestContext>
 
 <div class="request-list-item@(IsActive ? " active" : "")" @onclick="OnClick">@Request.Context.Name.Value</div>
 
 @code {
+
     [Parameter]
     public Request Request { get; set; }
 
@@ -15,6 +15,7 @@
 
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.UpdateOnChange(ctx => ctx.Name);
+        UpdateOnChange(ctx => ctx.Name);
     }
+
 }

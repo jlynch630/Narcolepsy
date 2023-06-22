@@ -1,0 +1,49 @@
+﻿@using Microsoft.JSInterop;
+@inherits StyledHtmlComponent
+@inject IJSRuntime JSRuntime;
+
+<div @attributes="Attributes" class="@GetClassName("dropdown-button")" @ref="ContainerRef">
+    <div class="button-container">
+        <Button class="@($"button {ButtonClassName ?? ""}")" @onclick="OnPrimaryButtonClick">@ChildContent</Button>
+        <Button class="arrow-button" tabindex="-1" @onclick="() => SetShowingOptions(!ShowOptions)" @onblur="() => SetShowingOptions(false)"><span class="material-symbols-rounded">arrow_drop_down</span></Button>
+    </div>
+    @if (ShowOptions) {
+        <div class="@($"option-container {(HidingOptions ? "hide" : "")}")">
+            <CascadingValue Value="this">
+                @ListItems
+            </CascadingValue>
+        </div>
+    }
+</div>
+
+@code {
+    private bool Active = false;
+    private ElementReference ContainerRef;
+
+    [Parameter]
+    public string? ButtonClassName { get; set; }
+
+    [Parameter]
+    public RenderFragment? ListItems { get; set; }
+
+    [Parameter]
+    public EventCallback OnPrimaryButtonClick { get; set; }
+
+    private bool ShowOptions = false;
+    private bool HidingOptions;
+
+    private async Task SetShowingOptions(bool show) {
+        if (!show) {
+            this.HidingOptions = true;
+            this.StateHasChanged();
+            await Task.Delay(150);
+            this.ShowOptions = false;
+            this.HidingOptions = false;
+            return;
+        }
+
+        this.ShowOptions = true;
+        this.HidingOptions = false;
+    }
+
+}
