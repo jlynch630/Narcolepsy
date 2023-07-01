@@ -1,7 +1,8 @@
-﻿namespace Narcolepsy.Core; 
+﻿namespace Narcolepsy.Core;
+
+using Interop;
 using Microsoft.Extensions.DependencyInjection;
-using Narcolepsy.Core.Interop;
-using Narcolepsy.Platform;
+using Platform;
 
 public class CorePluginServices : IPluginSetup {
     public void ConfigureServices(IServiceCollection services) {

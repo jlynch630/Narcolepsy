@@ -2,9 +2,8 @@
 
 using Platform.Rendering;
 
-public interface ITab<in TContext> : IRenderable<TContext>
-{
-    public string Title { get; }
-
+public interface ITab<in TContext> : IRenderable<TContext> {
     public bool Enabled { get; }
+
+    public string Title { get; }
 }

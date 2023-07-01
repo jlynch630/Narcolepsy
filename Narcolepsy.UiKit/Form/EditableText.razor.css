@@ -1,0 +1,53 @@
+.container {
+  display: grid;
+  position: relative;
+  grid-template-rows: auto;
+  align-items: center;
+  border-bottom: 1px solid transparent;
+  width: 100%;
+}
+.container .input {
+  z-index: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  position: absolute;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  display: none;
+  outline: none;
+  width: 100%;
+  text-align: inherit;
+}
+.container .text {
+  white-space: pre;
+}
+.container.editing {
+  border-bottom-color: currentColor;
+}
+.container.editing .input {
+  display: unset;
+}
+.container.editing .text {
+  opacity: 0;
+  padding: 0 10px;
+}
+
+.grow-Left {
+  width: auto;
+  text-align: left;
+}
+
+.grow-Right {
+  width: auto;
+  text-align: right;
+}
+
+.grow-Center {
+  width: auto;
+  text-align: center;
+}
+
+/*# sourceMappingURL=EditableText.razor.css.map */

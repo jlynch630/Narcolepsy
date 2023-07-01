@@ -1,19 +1,13 @@
-﻿namespace Narcolepsy.Core.Http
-{
-    using Narcolepsy.Core.Http.Body;
-    using Narcolepsy.Platform.State;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.Core.Http;
 
-    internal record HttpRequestContextSnapshot(
-        string Name,
-        string Url,
-        string Method,
-        IHttpBody Body,
-        HttpHeader[] Headers,
-        HttpResponse? Response,
-        StateDictionary State);
-}
+using Body;
+using Platform.State;
+
+internal record HttpRequestContextSnapshot(
+    string Name,
+    string Url,
+    string Method,
+    IHttpBody Body,
+    HttpHeader[] Headers,
+    HttpResponse? Response,
+    StateDictionary State);

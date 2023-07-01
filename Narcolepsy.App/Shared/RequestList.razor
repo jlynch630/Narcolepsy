@@ -1,22 +1,35 @@
-﻿<aside class="request-list">
-    <NewRequestButton ClassName="add-button" OnCreate="OnCreateRequest"/>
-    @foreach (Request Request in Requests) {
-        <RequestListItem Request="Request" IsActive="Request == ActiveRequest" OnClick="() => ActiveRequestChanged.InvokeAsync(Request)"/>
+﻿@inherits Narcolepsy.Platform.Rendering.StateSensitiveComponent<Collection>
+<aside class="request-list">
+    <NewRequestButton ClassName="add-button" />
+    @foreach (SavedRequest Saved in Collection.Requests) {
+        <RequestListItem
+            Context="Saved.Request.Context"
+            IsActive="Saved == Collection.ActiveRequest.Value"
+            Request="@Saved"
+            OnClick="() => Collection.ActiveRequest.Value = Saved" />
     }
 </aside>
 
 @code {
+    [CascadingParameter]
+    public Collection Collection { get; set; }
 
-    [Parameter]
-    public List<Request> Requests { get; set; }
+    protected override Collection StateProvider => Collection;
 
-    [Parameter]
-    public Request ActiveRequest { get; set; }
+    protected override void OnInitialized() {
+        base.OnInitialized();
 
-    [Parameter]
-    public EventCallback OnCreateRequest { get; set; }
+        UpdateOnChange(c => c.ActiveRequest);
+        this.Collection.RequestAdded += this.RequestsUpdated;
+        this.Collection.RequestRemoved += this.RequestsUpdated;
+    }
 
-    [Parameter]
-    public EventCallback<Request> ActiveRequestChanged { get; set; }
+    private void RequestsUpdated(object sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
+
+    public override void Dispose() {
+        base.Dispose();
+        this.Collection.RequestAdded -= this.RequestsUpdated;
+        this.Collection.RequestRemoved -= this.RequestsUpdated;
+    }
 
 }

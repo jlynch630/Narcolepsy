@@ -1,7 +1,4 @@
 ﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using System.Text
-@using Microsoft.JSInterop
-@using Narcolepsy.Platform.Rendering
 @inject IJSRuntime JsRuntime
 
 <div class="response-info">
@@ -18,15 +15,17 @@
         }
     }
 </div>
+
 @code {
+
     [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
-    private HttpResponse? Response => this.Context.Response.Value;
+    private HttpResponse? Response => Context.Response.Value;
 
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.UpdateOnChange(ctx => ctx.Response);
+        UpdateOnChange(ctx => ctx.Response);
     }
 
 }

@@ -1,19 +1,17 @@
-﻿namespace Narcolepsy.UiKit {
-    using Microsoft.AspNetCore.Components;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.UiKit;
 
-    public class StyledHtmlComponent : ComponentBase {
+using Microsoft.AspNetCore.Components;
 
-        [Parameter(CaptureUnmatchedValues = true)]
-        public Dictionary<string, object>? Attributes { get; set; }
+public class StyledHtmlComponent : ComponentBase {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? Attributes { get; set; }
 
-        [Parameter]
-        public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 
-        protected string GetClassName(string className = "") => $"{className}{((Attributes?.ContainsKey("class") ?? false) ? " " + Attributes["class"] : "")}";
-    }
+    protected string GetClassName(params string?[] classNames) =>
+        $"{StyledHtmlComponent.ConcatenateClassNames(classNames)}{(this.Attributes?.ContainsKey("class") ?? false ? " " + this.Attributes["class"] : "")}";
+
+    private static string ConcatenateClassNames(string?[] classes) =>
+        String.Join(" ", classes.Where(c => c is not null));
 }

@@ -1,4 +1,8 @@
-﻿function injectScript(path) {
+﻿function injectScripts(scripts) {
+	return Promise.all(scripts.split("\0").map(injectScript));
+}
+
+function injectScript(path) {
 	const script = document.createElement("script");
 	script.type = "text/javascript";
 	script.src = path;

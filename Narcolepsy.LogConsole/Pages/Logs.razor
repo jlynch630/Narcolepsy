@@ -1,0 +1,25 @@
+﻿@page "/"
+@using Narcolepsy.LogConsole.Services
+@using Narcolepsy.LogConsole.Data
+@inject LogService LogService;
+
+<div class="container">
+    @foreach (LogEntry Entry in Messages) {
+        @foreach (LogToken Token in Entry.Tokens) {
+            <span class="token" style="@Token.Style.GetCssStyle()">@Token.Text</span>
+        }
+        <br />
+    }
+</div>
+
+@code {
+    private readonly List<LogEntry> Messages = new();
+    protected override Task OnInitializedAsync() {
+        this.LogService.LogEntryAvailable += (s, e) => {
+            Messages.Add(e);
+            this.InvokeAsync(this.StateHasChanged);
+        };
+        return base.OnInitializedAsync();
+    }
+
+}

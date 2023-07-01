@@ -1,23 +1,49 @@
-﻿<DropdownButton class="@($"new-req-button {ClassName ?? ""}")" OnPrimaryButtonClick="OnCreate">
+﻿@using Narcolepsy.App.Plugins
+@using Narcolepsy.App.Plugins.Requests
+@inject RequestManager RequestManager;
+
+<DropdownButton class="@($"new-req-button {ClassName ?? ""}")" OnPrimaryButtonClick="CreatePrimaryRequest">
     <ChildContent>
-        <span class="material-symbols-rounded">add</span>&nbsp;<span>Create Request</span>
+        <span class="material-symbols-rounded">add</span>&nbsp;<span>@(this.PrimaryRequestDefinition?.Name ?? "Create") Request</span>
     </ChildContent>
     <ListItems>
-        <DropdownButtonListItem Icon="language">HTTP Request</DropdownButtonListItem>
-        <DropdownButtonListItem Icon="hub">GraphQL Request</DropdownButtonListItem>
-        <DropdownButtonListItem Icon="satellite_alt">RPC Request</DropdownButtonListItem>
+        @foreach (RequestDefinition RequestDef in this.RequestManager.RequestDefinitions) {
+            <MenuListItem Icon="@(RequestDef.Icon ?? "language")" OnClick="() => this.CreateRequest(RequestDef)">@RequestDef.Name Request</MenuListItem>
+        }
+        <MenuListItem Icon="hub">GraphQL Request</MenuListItem>
+        <MenuListItem Icon="satellite_alt">RPC Request</MenuListItem>
         <Divider/>
-        <DropdownButtonListItem Icon="cloud_download">Install More</DropdownButtonListItem>
+        <MenuListItem Icon="cloud_download">Install More</MenuListItem>
     </ListItems>
 </DropdownButton>
 
 
 @code {
+    [CascadingParameter]
+    public Collection Collection { get; set; }
 
     [Parameter]
-    public EventCallback OnCreate { get; set; }
+    public string ClassName { get; set; }
 
-    [Parameter]
-    public string? ClassName { get; set; }
+    private RequestDefinition PrimaryRequestDefinition;
 
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        this.PrimaryRequestDefinition = this.RequestManager.RequestDefinitions.FirstOrDefault();
+    }
+
+    private Task CreatePrimaryRequest() => this.CreateRequest(this.PrimaryRequestDefinition?.Name);
+
+    private Task CreateRequest(RequestDefinition def) {
+        this.PrimaryRequestDefinition = def;
+        return this.CreateRequest(def.Name);
+    }
+
+    private async Task CreateRequest(string type) {
+        if (type is null) return;
+        Request NewRequest = await RequestManager.CreateRequestAsync(type, "New Request");
+        SavedRequest Wrapped = new(NewRequest);
+        this.Collection.AddRequest(Wrapped);
+        this.Collection.ActiveRequest.Value = Wrapped;
+    }
 }

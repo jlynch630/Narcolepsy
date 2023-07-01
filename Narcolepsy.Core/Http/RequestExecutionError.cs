@@ -1,9 +1,3 @@
-﻿namespace Narcolepsy.Core.Http {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.Core.Http;
 
-    public record RequestExecutionError(string? Message, string? HelpText, Exception? Exception);
-}
+public record RequestExecutionError(string? Message, string? HelpText, Exception? Exception);

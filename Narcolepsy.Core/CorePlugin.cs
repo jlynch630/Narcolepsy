@@ -1,34 +1,28 @@
 ﻿namespace Narcolepsy.Core;
 
-using Components;
 using Components.Http;
+using Components.Http.InfoBoxes;
+using Components.Http.RequestTabs;
+using Components.Http.ResponseTabs;
 using Http;
-using Interop;
-using Microsoft.Extensions.DependencyInjection;
-using Narcolepsy.Core.Components.Http.InfoBoxes;
-using Narcolepsy.Core.Components.Http.RequestTabs;
-using Narcolepsy.Core.Components.Http.ResponseTabs;
-using Narcolepsy.Core.Renderables.BodyEditors;
-using Narcolepsy.Platform.Serialization;
 using Platform;
 using Platform.Extensions;
-using System;
+using Renderables.BodyEditors;
 using ViewConfig;
 
 public class CorePlugin : IPlugin {
-    public string FullName => "Narcolepsy Core Plugin";
-
     public string Description => "Provides core functionality essential to Narcolepsy";
 
-    public PluginVersion Version => new(1, 0, 0);
+    public string FullName => "Narcolepsy Core Plugin";
 
     public async Task InitializeAsync(NarcolepsyContext context) {
         HttpViewConfiguration Config = new();
         context.Requests
-            .RegisterType<IHttpRequestContext, HttpRequestContextSnapshot, HttpView, IHttpViewConfiguration>(
-                "HTTP",
-                (snapshot) => new HttpRequestContext(snapshot),
-                Config);
+               .RegisterType<IHttpRequestContext, HttpRequestContextSnapshot, HttpView, IHttpViewConfiguration>(
+                   "HTTP",
+                   snapshot => new HttpRequestContext(snapshot),
+                   Config)
+               .ConfigureIcon("language");
 
         context.Requests.ConfigureHttp(config => {
             config
@@ -59,7 +53,7 @@ public class CorePlugin : IPlugin {
                 .AddCodeBodyEditor("XML", "xml", "application/xml; charset=utf-8")
                 .AddCodeBodyEditor("Plain Text", "plaintext", "text/plain; charset=utf-8");
         });
-
-        context.Assets.InjectScript("script/index.js");
     }
+
+    public PluginVersion Version => new(0, 0, 1);
 }

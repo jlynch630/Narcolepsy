@@ -1,14 +1,13 @@
-﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using System.Text;
-@using System.Security.Authentication;
-@using Narcolepsy.Core.Http.Exceptions;
+﻿@using System.Security.Authentication
+@using Narcolepsy.Core.Http.Exceptions
+@inherits ContextSensitiveComponent<IHttpRequestContext>
 <div class="response-view">
     <Tabs Context="Context"
           Configuration="Configuration"
           TabList="Configuration.ResponseTabs"
           GridArea="content"
-          StateId="http-tab-list-response" />
-          
+          StateId="http-tab-list-response"/>
+
     @if (Context.Response.Value?.Error is not null) {
         RequestExecutionError Error = Context.Response.Value?.Error!;
         (string Icon, string ErrorMessage, string HelpText) = GetErrorText(Error);
@@ -39,6 +38,7 @@
 </div>
 
 @code {
+
     [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
@@ -50,7 +50,7 @@
 
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.UpdateOnChange(ctx => ctx.Response);
+        UpdateOnChange(ctx => ctx.Response);
     }
 
     private (string Icon, string Message, string Help) GetErrorText(RequestExecutionError error) {
@@ -64,11 +64,11 @@
 
         string ExceptionMessage = error.Exception?.Message ?? "";
 
-        // System.NotSupportedException: The 'scheme' scheme is not supported.
-        // HttpRequestException: The SSL connection could not be established, The remote certificate is invalid according to the validation procedure: RemoteCertificateNameMismatch
-        // System.Net.Http.HttpRequestException: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
-        // System.Threading.Tasks.TaskCanceledException: A task was canceled.
-        // System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 0.05 seconds elapsing.
+    // System.NotSupportedException: The 'scheme' scheme is not supported.
+    // HttpRequestException: The SSL connection could not be established, The remote certificate is invalid according to the validation procedure: RemoteCertificateNameMismatch
+    // System.Net.Http.HttpRequestException: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+    // System.Threading.Tasks.TaskCanceledException: A task was canceled.
+    // System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 0.05 seconds elapsing.
         return error.Exception switch
         {
             NotSupportedException _ when ExceptionMessage.Contains("scheme is not supported") => (DefaultIcon, "Unsupported URL scheme", "You may need to install a plugin that supports this scheme"),
@@ -79,8 +79,9 @@
             InvalidRequestException e => e.Type switch {
                 InvalidRequestType.Headers => ("list_alt", "Invalid Request Headers", "Check that the request header names and values are correct and try again"),
                 _ => (DefaultIcon, DefaultMessage, DefaultHelp)
-            },
+                },
             _ => (DefaultIcon, DefaultMessage, DefaultHelp)
-        };
+            };
     }
+
 }

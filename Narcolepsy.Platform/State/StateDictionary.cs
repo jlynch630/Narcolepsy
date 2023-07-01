@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 public class StateDictionary {
 	internal Dictionary<string, SerializableState> StateStore;
 
-	public StateDictionary() => this.StateStore = new();
+	public StateDictionary() => this.StateStore = new Dictionary<string, SerializableState>();
 
 	internal StateDictionary(Dictionary<string, SerializableState> stateStore)
 		=> this.StateStore = stateStore;

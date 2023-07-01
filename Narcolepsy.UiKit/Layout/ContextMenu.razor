@@ -1,0 +1,19 @@
+﻿@inherits StyledHtmlComponent
+<div class="menu-container" @onblur="OnClose" tabindex="-1" @ref="ContainerRef">
+    <div class="@GetClassName("menu")" @attributes="Attributes" @onclick="OnClose" @onclick:stopPropagation>
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private ElementReference ContainerRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+        await this.ContainerRef.FocusAsync();
+    }
+
+}

@@ -1,0 +1,16 @@
+.menu-container {
+	position: absolute;
+	width: 100%;
+	left: 0;
+	padding: 2px 8px;
+	box-sizing: border-box;
+	outline: none;
+	z-index: 10;
+}
+
+.menu {
+	background: white;
+	box-shadow: 0 0 2px 0px #2e2e2e;
+	color: var(--color-text-dark);
+	border-radius: 2px;
+}

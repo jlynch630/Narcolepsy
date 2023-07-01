@@ -19,11 +19,11 @@ internal class AssetManager : IAssetManager {
         this.InjectStylesheet(path, Assembly.GetCallingAssembly().GetName().Name);
 
     public void InjectStylesheet(string path, string packageId) =>
-        this.ScriptsToLoad.Add($"_content/{packageId}/{path}");
+        this.StylesToLoad.Add($"_content/{packageId}/{path}");
 
     public async Task LoadAllScriptsAsync(IJSRuntime jsRuntime) {
-        foreach (string Script in this.ScriptsToLoad)
-            await jsRuntime.InvokeVoidAsync("injectScript", Script);
+        if (!this.ScriptsToLoad.Any()) return;
+        await jsRuntime.InvokeVoidAsync("injectScripts", String.Join("\0", this.ScriptsToLoad));
     }
 
     public async Task LoadAllStylesAsync(IJSRuntime jsRuntime) {

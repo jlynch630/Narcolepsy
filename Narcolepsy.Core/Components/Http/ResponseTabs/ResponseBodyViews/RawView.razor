@@ -1,7 +1,7 @@
-﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using CommunityToolkit.Maui.Storage;
-@using System.Net.Http.Headers;
-@inject IJSRuntime JsRuntime
+﻿@using System.Net.Http.Headers
+@using CommunityToolkit.Maui.Storage
+@inherits ContextSensitiveComponent<IHttpRequestContext>
+@inject NarcolepsyJs JsService
 
 <div class="container">
     @if (IsBinaryResponse) {
@@ -11,11 +11,12 @@
             <p class="note">
                 This file seems like binary content.
                 <A @onclick="ViewAnyway" class="view-link">View Anyway?</A>
-                <br />
+                <br/>
                 Content Type: @(Context.Response.Value?.ResponseHeaders.GetHeaderValue("Content-Type") ?? "Unknown")
             </p>
         </div>
-    } else {
+    }
+    else {
         <pre class="raw-view">
             @ColorizedResponse
         </pre>
@@ -28,65 +29,59 @@
     private bool IsBinaryResponse;
     private string InferredFilename;
 
-    private NarcolepsyJs JsService;
-
-    protected override void OnInitialized() {
-        base.OnInitialized();
-        this.JsService = new NarcolepsyJs(this.JsRuntime);
-    }
-
-    protected override async Task OnContextChangedAsync() {
-        await base.OnContextChangedAsync();
-        this.Context.Response.ValueChanged += async (_, res) => await this.LoadNewResponse(res.Value);
-        await this.LoadNewResponse(this.Context.Response.Value);
+    protected override async Task OnStateChangedAsync() {
+        await base.OnStateChangedAsync();
+        Context.Response.ValueChanged += async (_, res) => await LoadNewResponse(res.Value);
+        await LoadNewResponse(Context.Response.Value);
     }
 
     private async Task LoadNewResponse(HttpResponse? response) {
         if (response is null) {
-            this.ColorizedResponse = default;
-            this.IsBinaryResponse = false;
-            await this.InvokeAsync(this.StateHasChanged);
+            ColorizedResponse = default(MarkupString);
+            IsBinaryResponse = false;
+            await InvokeAsync(StateHasChanged);
             return;
         }
 
         // is it text or not
-        this.IsBinaryResponse = response.BodyText.Contains("\ufffd");
+        IsBinaryResponse = response.BodyText.Contains("\ufffd");
 
-        if (this.IsBinaryResponse) {
-            this.ColorizedResponse = default;
-            this.InferredFilename = this.InferFilename();
-            await this.InvokeAsync(this.StateHasChanged);
+        if (IsBinaryResponse) {
+            ColorizedResponse = default(MarkupString);
+            InferredFilename = InferFilename();
+            await InvokeAsync(StateHasChanged);
             return;
         }
 
         // very easy, just colorize and set
         MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(response.ResponseHeaders.GetHeaderValue("Content-Type"));
 
-        this.ColorizedResponse = await this.JsService.Colorize(response.BodyText, Language.Id);
-        await this.InvokeAsync(this.StateHasChanged);
+        ColorizedResponse = await JsService.Colorize(response.BodyText, Language.Id);
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ViewAnyway() {
-        this.IsBinaryResponse = false;
+        IsBinaryResponse = false;
 
-        this.ColorizedResponse = (MarkupString)(this.Context.Response.Value?.BodyText ?? "");
+        ColorizedResponse = (MarkupString)(Context.Response.Value?.BodyText ?? "");
     }
 
     private async Task SaveFile() {
-        if (this.Context.Response.Value is null) return;
+        if (Context.Response.Value is null) return;
         try {
-            await FileSaver.Default.SaveAsync("/", InferredFilename, new MemoryStream(this.Context.Response.Value.ResponseBody), default);
-        } catch (FolderPickerException) {
+            await FileSaver.Default.SaveAsync("/", InferredFilename, new MemoryStream(Context.Response.Value.ResponseBody), default(CancellationToken));
+        }
+        catch (FolderPickerException) {
             // just means it was canceled, ignore
         }
     }
 
     private string InferFilename() {
-        HttpResponse? Response = this.Context.Response.Value;
+        HttpResponse? Response = Context.Response.Value;
         if (Response is null) return "file";
 
         // guess from the url if we have nothing else
-        string UrlGuess = Path.GetFileName(Response.RequestMessage.RequestUri?.LocalPath) ?? "file";
+        string UrlGuess = Path.GetFileName(Response.RequestMessage?.RequestUri?.LocalPath) ?? "file";
 
         // if we have a content disposition header, perfect!
         string? ContentDisposition = Response.ResponseHeaders.GetHeaderValue("Content-Disposition");
@@ -96,11 +91,13 @@
             try {
                 ContentDispositionHeaderValue HeaderValue = ContentDispositionHeaderValue.Parse(ContentDisposition);
                 return HeaderValue.FileNameStar ?? HeaderValue.FileName ?? UrlGuess;
-            } catch {
+            }
+            catch {
                 // return the guess instead
             }
         }
 
         return UrlGuess;
     }
+
 }

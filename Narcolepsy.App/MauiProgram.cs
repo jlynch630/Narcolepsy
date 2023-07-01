@@ -1,31 +1,45 @@
 ﻿namespace Narcolepsy.App;
 
-using Platform.Requests;
+using LogConsole.Services;
 using Platform.Serialization;
 using Plugins;
 using Services;
+using Plugins.Requests;
+using Narcolepsy.Platform.Logging;
 
 public static class MauiProgram {
     public static MauiApp CreateMauiApp() {
-        MauiAppBuilder builder = MauiApp.CreateBuilder();
+        LifecycleManager LifecycleManager = new();
+
+        MauiAppBuilder Builder = MauiApp.CreateBuilder();
 #pragma warning disable MCT001 // `.UseMauiCommunityToolkit()` Not Found on MauiAppBuilder
-        builder
-            .UseMauiApp<App>()
-            .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
+        Builder
+            .UseMauiApp<App>(_ => new App(LifecycleManager));
 #pragma warning restore MCT001 // `.UseMauiCommunityToolkit()` Not Found on MauiAppBuilder
 
-        builder.Services.AddMauiBlazorWebView();
+        Builder.Services.AddMauiBlazorWebView();
 #if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
+        Builder.Services.AddBlazorWebViewDeveloperTools();
+
+#if WINDOWS
+#endif
 #endif
 
-        builder.Services.AddSingleton<AssetManager>();
-        builder.Services.AddSingleton<PluginManager>();
-        builder.Services.AddSingleton<SerializationManager>();
-        builder.Services.AddSingleton<RequestManager>();
-        builder.Services.AddSingleton<IStorage, FileStorage>();
-        PluginManager.InitializePluginServices(builder.Services);
+        Builder.Services.AddSingleton<AssetManager>();
+        Builder.Services.AddSingleton<PluginManager>();
+        Builder.Services.AddSingleton<SerializationManager>();
+        Builder.Services.AddSingleton<RequestManager>();
+        Builder.Services.AddSingleton<DuplicateService>();
+        Builder.Services.AddSingleton<IStorage, FileStorage>();
+        Builder.Services.AddSingleton<ILifecycleManager>(LifecycleManager);
+#if DEBUG
+        LogService LogService = new();
+        Logger.AddSink(LogService);
+        Builder.Services.AddSingleton(LogService);
+#endif
 
-        return builder.Build();
+        PluginManager.InitializePluginServices(Builder.Services);
+
+        return Builder.Build();
     }
 }

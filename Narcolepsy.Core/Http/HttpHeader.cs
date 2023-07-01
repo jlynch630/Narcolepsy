@@ -3,9 +3,9 @@
 using System.Text.RegularExpressions;
 
 public partial record HttpHeader(string Name, string Value, bool IsEnabled, bool IsUserModifiable, string? Note) {
-    private Regex ValidNameRegex = GetValidTokenRegex();
+    private readonly Regex ValidNameRegex = HttpHeader.GetValidTokenRegex();
 
-    public bool IsNameValid => ValidNameRegex.IsMatch(Name);
+    public bool IsNameValid => this.ValidNameRegex.IsMatch(this.Name);
 
     public bool IsValueValid => true; // todo
 

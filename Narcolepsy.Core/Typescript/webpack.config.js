@@ -9,7 +9,9 @@ const config = {
     output: {
         path: path.resolve(__dirname, '../wwwroot/script'),
         filename: "index.js",
-        library: "narcolepsy"
+        library: {
+            type: 'module',
+        },
     },
     plugins: [
         new MonacoWebpackPlugin()
@@ -38,6 +40,9 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '...'],
     },
+    experiments: {
+        outputModule: true
+    }
 };
 
 module.exports = () => {

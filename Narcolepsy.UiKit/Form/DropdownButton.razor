@@ -5,10 +5,10 @@
 <div @attributes="Attributes" class="@GetClassName("dropdown-button")" @ref="ContainerRef">
     <div class="button-container">
         <Button class="@($"button {ButtonClassName ?? ""}")" @onclick="OnPrimaryButtonClick">@ChildContent</Button>
-        <Button class="arrow-button" tabindex="-1" @onclick="() => SetShowingOptions(!ShowOptions)" @onblur="() => SetShowingOptions(false)"><span class="material-symbols-rounded">arrow_drop_down</span></Button>
+        <Button class="arrow-button" tabindex="0" @onclick="() => SetShowingOptions(!ShowOptions)" @onblur="() => SetShowingOptions(false)"><span class="material-symbols-rounded">arrow_drop_down</span></Button>
     </div>
     @if (ShowOptions) {
-        <div class="@($"option-container {(HidingOptions ? "hide" : "")}")">
+        <div class="@($"option-container {(HidingOptions ? "hide" : "")}")" @onclick:stopPropagation>
             <CascadingValue Value="this">
                 @ListItems
             </CascadingValue>

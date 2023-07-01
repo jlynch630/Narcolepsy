@@ -1,11 +1,37 @@
-﻿@inherits Narcolepsy.Platform.Rendering.ContextSensitiveComponent<IRequestContext>
+﻿@using Narcolepsy.App.Plugins.Requests
+@using Narcolepsy.App.Services
+@inherits Narcolepsy.Platform.Rendering.ContextSensitiveComponent<IRequestContext>
+@inject DuplicateService Duplicator;
 
-<div class="request-list-item@(IsActive ? " active" : "")" @onclick="OnClick">@Request.Context.Name.Value</div>
+<div class="request-list-item@(IsActive ? " active" : "")" @onclick="OnClick" @oncontextmenu="() => ShowContextMenu = true">
+    <EditableText @bind-Editing="EditingName" @bind-Text="Context.Name.Value" />
+    @if (ShowContextMenu) {
+        <ContextMenu OnClose="() => ShowContextMenu = false">
+            <MenuListItem Icon="edit" OnClick="() => EditingName = true">Rename</MenuListItem>
+            <MenuListItem Icon="content_copy" OnClick="Duplicate">Duplicate</MenuListItem>
+            <MenuListItem Icon="delete" OnClick="() => Deleting = true">Delete</MenuListItem>
+        </ContextMenu>
+    }
+    @if (Deleting) {
+        <Modal
+            Canceled="() => Deleting = false">
+            <Title>
+                Are you sure?
+            </Title>
+            <Content>
+                Permanently delete <b>@(Context?.Name.Value)</b>? This action cannot be undone.
+            </Content>
+            <Actions>
+                <Button Outlined @onclick="() => this.Deleting = false">Cancel</Button>
+                <Button @onclick="Delete" class="delete-btn">Delete</Button>
+            </Actions>
+        </Modal>
+    }
+</div>
 
 @code {
-
-    [Parameter]
-    public Request Request { get; set; }
+    [CascadingParameter]
+    public Collection Collection { get; set; }
 
     [Parameter]
     public bool IsActive { get; set; }
@@ -13,9 +39,27 @@
     [Parameter]
     public EventCallback OnClick { get; set; }
 
+    [Parameter]
+    public SavedRequest Request { get; set; }
+
+    private bool EditingName;
+    private bool Deleting;
+    private bool ShowContextMenu;
+
+    private async Task Duplicate() {
+        if (this.Context is null || this.Request is null) return;
+
+        Request Result = await this.Duplicator.DuplicateAsync(this.Context.Name.Value + " Copy", this.Request.Request.Type, this.Context);
+        this.Collection.AddRequest(Result);
+    }
+
+    private void Delete() {
+        this.Collection.RemoveRequest(this.Request);
+        this.Deleting = false;
+    }
+
     protected override void OnInitialized() {
         base.OnInitialized();
         UpdateOnChange(ctx => ctx.Name);
     }
-
 }

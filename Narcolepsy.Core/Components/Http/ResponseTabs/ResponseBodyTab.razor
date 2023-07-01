@@ -1,8 +1,5 @@
-﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using System.Text
-@using Microsoft.JSInterop
-@using Narcolepsy.Core.Components.Http.ResponseTabs.ResponseBodyViews
-@using Narcolepsy.Core.Interop
+﻿@using Narcolepsy.Core.Components.Http.ResponseTabs.ResponseBodyViews
+@inherits ContextSensitiveComponent<IHttpRequestContext>
 @inject IJSRuntime JsRuntime
 
 <div class="body-tab">
@@ -16,10 +13,10 @@
     <div class="view">
         @switch (CurrentViewType) {
             case ViewSelection.Formatted:
-                <FormattedView Context="Context" />
+                <FormattedView Context="Context"/>
                 break;
             case ViewSelection.Raw:
-                <RawView Context="Context" />
+                <RawView Context="Context"/>
                 break;
             case ViewSelection.Preview:
                 break;
@@ -30,22 +27,22 @@
 @code {
     private ViewSelection CurrentViewType = ViewSelection.Preview;
 
-    private ViewSelection[] EnabledViews = new[] { ViewSelection.Preview, ViewSelection.Formatted, ViewSelection.Raw };
+    private ViewSelection[] EnabledViews = { ViewSelection.Preview, ViewSelection.Formatted, ViewSelection.Raw };
 
-    private static readonly string[] SupportedPreviewTypes = new[] {
-        "blarg"
-    };
+    private static readonly string[] SupportedPreviewTypes = {
+                                                                 "blarg"
+                                                             };
 
-    private static readonly string[] SupportedFormattedTypes = new[] {
-        "application/json",
-        "text/html",
-        "text/javascript",
-        "text/css",
-        "application/xml",
-        "text/xml",
-        "application/xaml+xml",
-        "application/xml-dtd"
-    };
+    private static readonly string[] SupportedFormattedTypes = {
+                                                                   "application/json",
+                                                                   "text/html",
+                                                                   "text/javascript",
+                                                                   "text/css",
+                                                                   "application/xml",
+                                                                   "text/xml",
+                                                                   "application/xaml+xml",
+                                                                   "application/xml-dtd"
+                                                               };
 
     private enum ViewSelection {
         Formatted,
@@ -55,35 +52,35 @@
 
     private bool Supports(string contentType, string[] supportedTypes) => supportedTypes.Contains(contentType.ToLowerInvariant());
 
-    protected override async Task OnContextChangedAsync() {
-        await base.OnContextChangedAsync();
+    protected override async Task OnStateChangedAsync() {
+        await base.OnStateChangedAsync();
 
-        // todo: dispose!
-        this.Context.Response.ValueChanged += (_, r) => this.UpdateEnabledViews(r.Value);
-        this.CurrentViewType = this.Context.State.Get("http-response-body-tab", ViewSelection.Preview);
-        this.UpdateEnabledViews(this.Context.Response.Value);
+    // todo: dispose!
+        Context.Response.ValueChanged += (_, r) => UpdateEnabledViews(r.Value);
+        CurrentViewType = Context.State.Get("http-response-body-tab", ViewSelection.Preview);
+        UpdateEnabledViews(Context.Response.Value);
     }
 
     private void UpdateEnabledViews(HttpResponse? response) {
         string ContentType = response?.ResponseHeaders.GetHeaderValue("Content-Type")?.Split(";")[0] ?? "";
 
         List<ViewSelection> Supported = new();
-        if (this.Supports(ContentType, ResponseBodyTab.SupportedPreviewTypes))
+        if (Supports(ContentType, ResponseBodyTab.SupportedPreviewTypes))
             Supported.Add(ViewSelection.Preview);
-        if (this.Supports(ContentType, ResponseBodyTab.SupportedFormattedTypes))
+        if (Supports(ContentType, ResponseBodyTab.SupportedFormattedTypes))
             Supported.Add(ViewSelection.Formatted);
 
         Supported.Add(ViewSelection.Raw);
 
-        this.EnabledViews = Supported.ToArray();
+        EnabledViews = Supported.ToArray();
 
-        if (!Supported.Contains(this.CurrentViewType)) this.ViewTypeChanged(this.EnabledViews[0]);
-        this.InvokeAsync(this.StateHasChanged);
+        if (!Supported.Contains(CurrentViewType)) ViewTypeChanged(EnabledViews[0]);
+        InvokeAsync(StateHasChanged);
     }
 
     private void ViewTypeChanged(ViewSelection newSelection) {
-        this.CurrentViewType = newSelection;
-        this.Context.State.Add("http-response-body-tab", newSelection);
+        CurrentViewType = newSelection;
+        Context.State.Add("http-response-body-tab", newSelection);
     }
 
 }

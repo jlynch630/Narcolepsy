@@ -1,3 +1,8 @@
 ﻿@inherits StyledHtmlComponent
 
-<button @attributes="Attributes">@ChildContent</button>
+<button @attributes="Attributes" class="@GetClassName(Outlined ? "outlined" : null)">@ChildContent</button>
+
+@code {
+    [Parameter]
+    public bool Outlined { get; set; }
+}

@@ -1,5 +1,5 @@
-﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using Narcolepsy.Core.Renderables.Tabs
+﻿@using Narcolepsy.Core.Renderables.Tabs
+@inherits ContextSensitiveComponent<IHttpRequestContext>
 <div class="tabs@(ClassName is null ? "" : $" {ClassName}")" style=@(GridArea is null ? "" : $"grid-area: {GridArea}")>
     <div class="tab-list">
         @foreach (ITab<IHttpRequestContext> Tab in TabList) {
@@ -16,6 +16,7 @@
 </div>
 
 @code {
+
     [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
@@ -23,7 +24,7 @@
     public IReadOnlyList<ITab<IHttpRequestContext>> TabList { get; set; }
 
     [Parameter]
-    public string? GridArea {get; set; }
+    public string? GridArea { get; set; }
 
     [Parameter]
     public string? ClassName { get; set; }
@@ -34,24 +35,24 @@
     private ITab<IHttpRequestContext>? ActiveTab;
 
     private void SetActiveTab(ITab<IHttpRequestContext> newActive) {
-        this.ActiveTab = newActive;
-        if (this.StateId is not null)
-            this.Context.State.Add(this.StateId, newActive.Title);
+        ActiveTab = newActive;
+        if (StateId is not null)
+            Context.State.Add(StateId, newActive.Title);
     }
 
     protected override void OnParametersSet() {
         base.OnParametersSet();
 
-        this.ActiveTab ??= this.TabList[0];
+        ActiveTab ??= TabList[0];
     }
 
-    protected override async Task OnContextChangedAsync() {
-        await base.OnContextChangedAsync();
+    protected override async Task OnStateChangedAsync() {
+        await base.OnStateChangedAsync();
 
-        if (this.StateId is null) return;
-        string? SetTab = this.Context.State.Get<string?>(this.StateId, null);
+        if (StateId is null) return;
+        string? SetTab = Context.State.Get<string?>(StateId, null);
 
-        this.ActiveTab = SetTab is null ? this.TabList[0] : this.TabList.FirstOrDefault(t => t.Title == SetTab) ?? this.TabList[0];
+        ActiveTab = SetTab is null ? TabList[0] : TabList.FirstOrDefault(t => t.Title == SetTab) ?? TabList[0];
     }
 
 }

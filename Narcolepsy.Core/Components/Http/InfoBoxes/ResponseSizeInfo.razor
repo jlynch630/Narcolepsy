@@ -1,6 +1,7 @@
 ﻿@GetFormattedResponseSize(Context.ResponseBody.LongLength)
 
 @code {
+
     [Parameter]
     public HttpResponse Context { get; set; }
 
@@ -12,4 +13,5 @@
 
         return $"{length / (double)1048576:0.##} MB";
     }
+
 }

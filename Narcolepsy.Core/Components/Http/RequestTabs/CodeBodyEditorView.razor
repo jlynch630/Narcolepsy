@@ -1,69 +1,85 @@
-﻿@using Narcolepsy.Core.Http;
-@using Narcolepsy.Core.Interop;
-@using Narcolepsy.Core.Http.Body;
-@using System.Collections.ObjectModel;
-@inject NarcolepsyJs JsService;
+﻿@inject NarcolepsyJs JsService;
+@using Narcolepsy.Core.Http.Body
+@using System.Diagnostics
+@implements IDisposable
 
 <div class="editor" @ref="EditorRef"></div>
 
 @code {
+
     [Parameter]
     public IHttpRequestContext Context { get; set; }
 
     [Parameter]
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [Parameter]
-    public string ContentType { get; set; }
+    public string? ContentType { get; set; }
 
     private ElementReference EditorRef;
 
-    private MonacoEditor Editor;
+    private MonacoEditor? Editor;
 
-    private TextBody Body;
+    private TextBody? Body;
 
     public override async Task SetParametersAsync(ParameterView parameters) {
-        if (this.ContentType is null && this.LanguageId is null) {
+        if (ContentType is null && LanguageId is null) {
             await base.SetParametersAsync(parameters);
             return;
         }
 
-        bool ShouldUpdateContentType = parameters.GetValueOrDefault<string>(nameof(ContentType)) != this.ContentType;
-        bool ShouldUpdateLanguage = parameters.GetValueOrDefault<string>(nameof(LanguageId)) != this.LanguageId;
+        bool ShouldUpdateContentType = parameters.GetValueOrDefault<string>(nameof(CodeBodyEditorView.ContentType)) != ContentType;
+        bool ShouldUpdateLanguage = parameters.GetValueOrDefault<string>(nameof(CodeBodyEditorView.LanguageId)) != LanguageId;
+        bool ShouldUpdateEverything = parameters.GetValueOrDefault<IHttpRequestContext>(nameof(CodeBodyEditorView.Context)) != Context;
 
         await base.SetParametersAsync(parameters);
 
-        if (Context is not null && ShouldUpdateContentType) {
+        if (ShouldUpdateEverything || ShouldUpdateContentType) {
             // content type changed! update the header
-            this.UpdateHeader();
+            UpdateHeader();
         }
 
-        if (Editor is not null && ShouldUpdateLanguage) {
-            await this.Editor.SetModel(await this.JsService.CreateTextModel(await this.Editor.GetValue(), this.LanguageId));
+        if (ShouldUpdateEverything || ShouldUpdateLanguage) {
+            await UpdateModel();
         }
+    }
 
+    private async Task UpdateModel() {
+        if (Editor is null) return;
+        Body = Context.Body.Value as TextBody;
+        await Editor.SetModel(await JsService.CreateTextModel(Body.BodyContent, LanguageId ?? "plaintext"));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         await base.OnAfterRenderAsync(firstRender);
 
         if (!firstRender) return;
-        this.UpdateHeader();
+        UpdateHeader();
 
-        this.Body = this.Context.Body.Value as TextBody ?? new TextBody();
-        this.Context.Body.Value = this.Body;
+        Body = Context.Body.Value as TextBody ?? new TextBody();
+        Context.Body.Value = Body;
+        Context.Body.ValueChanged += BodyChanged;
 
-        this.Editor = await JsService.CreateEditor(this.EditorRef, this.LanguageId, false, this.Body.BodyContent);
-        this.Editor.ModelContentChanged += (_, value) => {
-            this.Body.BodyContent = value;
-        };
+        Editor = await JsService.CreateEditor(EditorRef, LanguageId ?? "plaintext", false, Body.BodyContent);
+        Editor.ModelContentChanged += (_, value) => { Body.BodyContent = value; };
+    }
+
+    private async void BodyChanged(object? sender, EventArgs e) {
+        await UpdateModel();
     }
 
     private void UpdateHeader() {
-        this.Context.Headers.SetAutoHeader(
+        if (ContentType is null) return;
+
+        Context.Headers.SetAutoHeader(
             "Content-Type",
-            this.ContentType,
+            ContentType,
             "This header was added automatically based on the request body"
-        );
+            );
     }
+
+    public void Dispose() {
+        Context.Body.ValueChanged -= BodyChanged;
+    }
+
 }

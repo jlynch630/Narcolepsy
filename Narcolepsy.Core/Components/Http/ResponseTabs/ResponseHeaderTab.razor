@@ -1,6 +1,6 @@
 ﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
 <div class="header-view">
-    @foreach (HttpResponseHeader ResponseHeader in this.Response?.ResponseHeaders ?? Array.Empty<HttpResponseHeader>()) {
+    @foreach (HttpResponseHeader ResponseHeader in Response?.ResponseHeaders ?? Array.Empty<HttpResponseHeader>()) {
         <p class="header">
             <span class="header-name">@ResponseHeader.Name:</span> @ResponseHeader.Value
         </p>
@@ -8,11 +8,13 @@
 </div>
 
 @code {
-    private HttpResponse? Response => this.Context.Response.Value;
+
+    private HttpResponse? Response => Context.Response.Value;
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();
 
-        this.UpdateOnChange(ctx => ctx.Response);
+        UpdateOnChange(ctx => ctx.Response);
     }
+
 }

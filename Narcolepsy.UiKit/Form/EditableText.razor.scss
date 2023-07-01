@@ -1,0 +1,56 @@
+﻿.container {
+	display: grid;
+	position: relative;
+	grid-template-rows: auto;
+	align-items: center;
+	border-bottom: 1px solid transparent;
+	width: 100%;
+
+	.input {
+		z-index: 1;
+		padding: 0;
+		border: none;
+		background: none;
+		position: absolute;
+		font-family: inherit;
+		font-size: inherit;
+		font-weight: inherit;
+		color: inherit;
+		display: none;
+		outline: none;
+		width: 100%;
+		text-align: inherit;
+	}
+
+	.text {
+		white-space: pre;
+	}
+
+	&.editing {
+		border-bottom-color: currentColor;
+
+		.input {
+			display: unset;
+		}
+
+		.text {
+			opacity: 0;
+			padding: 0 10px;
+		}
+	}
+}
+
+.grow-Left {
+	width: auto;
+	text-align: left;
+}
+
+.grow-Right {
+	width: auto;
+	text-align: right;
+}
+
+.grow-Center {
+	width: auto;
+	text-align: center;
+}

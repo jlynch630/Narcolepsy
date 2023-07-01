@@ -1,10 +1,10 @@
 ﻿@page "/"
-@using Narcolepsy.App.Collections
 @using Narcolepsy.App.Plugins
 @using Narcolepsy.App.Services
 @using System.Diagnostics
+@using Narcolepsy.Platform.Logging
 @inject PluginManager PluginManager;
-@inject IJSRuntime JSRuntime;
+@inject IJSRuntime JsRuntime;
 @inject AssetManager AssetManager;
 @inject IStorage Storage;
 
@@ -18,10 +18,14 @@ else {
 @code {
     private bool Ready;
     private Collection Collection;
+    private Stopwatch BigStop = Stopwatch.StartNew();
 
     protected override async Task OnInitializedAsync() {
         await PluginManager.InitializePluginsAsync();
+        Stopwatch Stop = Stopwatch.StartNew();
         Collection = await Storage.LoadCollectionAsync("default") ?? new Collection("Default");
+        Stop.Stop();
+        Logger.Debug("Loading default collection took {ElapsedMilliseconds}ms", Stop.ElapsedMilliseconds);
         await base.OnInitializedAsync();
     }
 
@@ -30,12 +34,19 @@ else {
 
         if (firstRender) {
             Stopwatch Stop = Stopwatch.StartNew();
-            await AssetManager.LoadAllScriptsAsync(JSRuntime);
-            await AssetManager.LoadAllStylesAsync(JSRuntime);
+            await AssetManager.LoadAllScriptsAsync(JsRuntime);
+            await AssetManager.LoadAllStylesAsync(JsRuntime);
             Stop.Stop();
-            Debug.WriteLine(Stop.ElapsedMilliseconds);
+            Logger.Debug("Loaded Scripts and Styles in {ElapsedMilliseconds}ms", Stop.ElapsedMilliseconds);
             Ready = true;
             StateHasChanged();
+            BigStop.Stop();
+            Logger.Debug("Time to first successful render: {ElapsedMilliseconds}ms", BigStop.ElapsedMilliseconds);
+            
+            #if WINDOWS
+            WinUI.App.Timer.Stop();
+            Logger.Debug("Time from app start to render: {ElapsedMilliseconds}ms", WinUI.App.Timer.ElapsedMilliseconds);
+            #endif
         }
     }
 

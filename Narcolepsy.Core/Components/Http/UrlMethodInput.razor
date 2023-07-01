@@ -1,5 +1,5 @@
-﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using System.Text.RegularExpressions;
+﻿@using System.Text.RegularExpressions
+@inherits ContextSensitiveComponent<IHttpRequestContext>
 <div class="url-method-container">
     <select class="method-select" @bind="Context.Method.Value">
         @foreach (string Method in Configuration.AvailableHttpMethods) {
@@ -12,12 +12,13 @@
             <span>Send</span>
         }
         else {
-            <Spinner />
+            <Spinner/>
         }
     </Button>
 </div>
 
 @code {
+
     [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
 
@@ -27,22 +28,22 @@
 
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.UpdateOnChange(ctx => ctx.Url);
-        this.UpdateOnChange(ctx => ctx.Method);
+        UpdateOnChange(ctx => ctx.Url);
+        UpdateOnChange(ctx => ctx.Method);
     }
 
     private async Task Execute() {
-        if (this.IsLoadingRequest) {
-            // cancel it!
-            this.ReqCancelToken.Cancel();
+        if (IsLoadingRequest) {
+    // cancel it!
+            ReqCancelToken.Cancel();
             return;
         }
 
-        this.ReqCancelToken = new CancellationTokenSource();
-        this.IsLoadingRequest = true;
-        this.StateHasChanged();
-        await this.Context.Execute(this.ReqCancelToken.Token);
-        this.IsLoadingRequest = false;
+        ReqCancelToken = new CancellationTokenSource();
+        IsLoadingRequest = true;
+        StateHasChanged();
+        await Context.Execute(ReqCancelToken.Token);
+        IsLoadingRequest = false;
     }
 
     private async Task UrlChanged(ChangeEventArgs e) {
@@ -53,4 +54,5 @@
 
         Context.Url.Value = NewUrl;
     }
+
 }

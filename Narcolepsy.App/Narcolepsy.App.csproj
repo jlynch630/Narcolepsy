@@ -58,6 +58,8 @@
       <ProjectReference Include="..\Narcolepsy.Platform\Narcolepsy.Platform.csproj" />
       <ProjectReference Include="..\Narcolepsy.Thrift\Narcolepsy.Thrift.csproj" />
       <ProjectReference Include="..\Narcolepsy.UiKit\Narcolepsy.UiKit.csproj" />
+	  <ProjectReference Include="..\Narcolepsy.LogConsole\Narcolepsy.LogConsole.csproj" />
     </ItemGroup>
-
+	<ItemGroup Condition="'$Configuration' == 'Debug'">
+	</ItemGroup>
 </Project>

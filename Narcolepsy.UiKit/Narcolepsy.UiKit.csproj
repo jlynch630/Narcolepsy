@@ -24,4 +24,16 @@
     <UpToDateCheckInput Remove="form\DropdownButtonListItem.razor.scss" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Form\EditableText.razor.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="layout\Modal.razor.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="layout\ContextMenu.razor.scss" />
+  </ItemGroup>
+
 </Project>

@@ -4,6 +4,7 @@
 </span>
 
 @code {
+
     [Parameter]
     public HttpResponse Context { get; set; }
 
@@ -14,6 +15,6 @@
         >= 400 and < 500 => "client-error",
         >= 500 and < 599 => "server-error",
         _ => ""
-    };
+        };
 
 }

@@ -1,6 +1,4 @@
-﻿@using Narcolepsy.Core.Http
-@using System.Text
-<h3>TestTab</h3>
+﻿<h3>TestTab</h3>
 
 <input type="text" @bind-value="@Context.Method.Value"/>
 <input type="text" @bind-value="@Context.Url.Value"/>
@@ -23,7 +21,7 @@
             <span>
                 <b>@Head.Name</b>: @Head.Value
             </span>
-            <br />
+            <br/>
         }
     </p>
     <p>@Resp.Error</p>

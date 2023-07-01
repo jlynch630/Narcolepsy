@@ -1,35 +1,36 @@
+@using Narcolepsy.Core.Renderables.BodyEditors
 @inherits ContextSensitiveComponent<IHttpRequestContext>
-@using Narcolepsy.Core.Renderables.BodyEditors;
 <div class="request-body">
     <div class="toolbar">
-        <Dropdown Value="ActiveBodyEditor" TValue="IBodyEditor" ValueChanged="ValueChanged" DisplayTextSelector="(e) => e?.Name" class="dropdown">
+        <Dropdown Value="ActiveBodyEditor" TValue="IBodyEditor" ValueChanged="ValueChanged" DisplayTextSelector="e => e?.Name" class="dropdown">
             @foreach (IBodyEditor Editor in Configuration.RequestBodyEditors) {
                 <Option Value="Editor">@Editor.Name</Option>
             }
         </Dropdown>
     </div>
     <div class="editor">
-        @ActiveBodyEditor?.RenderWithContext(this.Context)
+        @ActiveBodyEditor?.RenderWithContext(Context)
     </div>
 </div>
 
 @code {
+
     [CascadingParameter]
     public HttpViewConfiguration Configuration { get; set; }
 
     private IBodyEditor? ActiveBodyEditor;
 
-
     protected override async Task OnContextChangedAsync() {
         await base.OnContextChangedAsync();
-        this.ActiveBodyEditor = Configuration.RequestBodyEditors[Context.State.Get<int>("http-request-body-tab", 0)];
+        ActiveBodyEditor = Configuration.RequestBodyEditors[Context.State.Get("http-request-body-tab", 0)];
     }
 
     private void ValueChanged(IBodyEditor newEditor) {
-        this.ActiveBodyEditor = newEditor;
+        ActiveBodyEditor = newEditor;
         int Index = 0;
         for (; Index < Configuration.RequestBodyEditors.Count; Index++)
             if (Configuration.RequestBodyEditors[Index] == newEditor) break;
         Context.State.Add("http-request-body-tab", Index);
     }
+
 }

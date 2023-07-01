@@ -5,40 +5,19 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 public partial record HttpResponse {
-    private Lazy<string> StringValue;
+    private static readonly Regex CharsetRegex = HttpResponse.CreateCharsetRegex();
 
-    private static Regex CharsetRegex = CreateCharsetRegex();
-
-    private static DecoderFallback DecoderReplacer = new DecoderReplacementFallback("\ufffd");
-
-    public DateTime RequestDate { get; }
-
-    public TimeSpan ExecutionTime { get; }
-
-    public int StatusCode { get; }
-
-    public string StatusText { get; }
-
-    public HttpResponseHeader[] ResponseHeaders { get; }
-
-    public byte[] ResponseBody { get; }
-
-    public RequestExecutionError? Error { get; }
-
-    [JsonIgnore]
-    public HttpRequestMessage? RequestMessage { get; }
-
-    [JsonIgnore]
-    public string BodyText => this.StringValue.Value;
+    private static readonly DecoderFallback DecoderReplacer = new DecoderReplacementFallback("\ufffd");
+    private readonly Lazy<string> StringValue;
 
     public HttpResponse(DateTime requestDate,
-                                   TimeSpan executionTime,
-                                   HttpRequestMessage? requestMessage,
-                                   int statusCode,
-                                   string statusText,
-                                   HttpResponseHeader[] responseHeaders,
-                                   byte[] responseBody,
-                                   RequestExecutionError? error) {
+                        TimeSpan executionTime,
+                        HttpRequestMessage? requestMessage,
+                        int statusCode,
+                        string statusText,
+                        HttpResponseHeader[] responseHeaders,
+                        byte[] responseBody,
+                        RequestExecutionError? error) {
         this.RequestDate = requestDate;
         this.ExecutionTime = executionTime;
         this.RequestMessage = requestMessage;
@@ -50,10 +29,32 @@ public partial record HttpResponse {
         this.StringValue = new Lazy<string>(this.GetStringBody);
     }
 
-    public static HttpResponse CreateErrorResponse(RequestExecutionError error, HttpRequestMessage? request = null) => new HttpResponse(default, default, request, 0, "", Array.Empty<HttpResponseHeader>(), Array.Empty<byte>(),
-                error);
+    [JsonIgnore] public string BodyText => this.StringValue.Value;
 
-    private string GetStringBody() => this.GetResponseEncoding().GetString(this.ResponseBody);
+    public RequestExecutionError? Error { get; }
+
+    public TimeSpan ExecutionTime { get; }
+
+    public DateTime RequestDate { get; }
+
+    [JsonIgnore] public HttpRequestMessage? RequestMessage { get; }
+
+    public byte[] ResponseBody { get; }
+
+    public HttpResponseHeader[] ResponseHeaders { get; }
+
+    public int StatusCode { get; }
+
+    public string StatusText { get; }
+
+    public static HttpResponse CreateErrorResponse(RequestExecutionError error, HttpRequestMessage? request = null) =>
+        new(default(DateTime), default(TimeSpan), request, 0, "", Array.Empty<HttpResponseHeader>(),
+            Array.Empty<byte>(),
+            error);
+
+    // spec defines what a "token" is, hence the long character list
+    [GeneratedRegex(";\\s*charset=(([!#$%&'*+\\-.^_`|~]|\\d|[a-z])+)", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex CreateCharsetRegex();
 
     private Encoding GetResponseEncoding() {
         // use the "Default" by default, haha, but otherwise use the "charset" of the content-type header
@@ -66,7 +67,8 @@ public partial record HttpResponse {
         // support that yet
 
         // first: get the content type header, if any
-        HttpResponseHeader? MatchingHeader = this.ResponseHeaders.FirstOrDefault(h => h.Name.Equals("content-type", StringComparison.OrdinalIgnoreCase));
+        HttpResponseHeader? MatchingHeader =
+            this.ResponseHeaders.FirstOrDefault(h => h.Name.Equals("content-type", StringComparison.OrdinalIgnoreCase));
         if (MatchingHeader is null) return Encoding.Default;
 
         // great, now match it's value against the regex
@@ -78,12 +80,11 @@ public partial record HttpResponse {
 
         try {
             return Encoding.GetEncoding(Charset, EncoderFallback.ReplacementFallback, HttpResponse.DecoderReplacer);
-        } catch (ArgumentException) {
+        }
+        catch (ArgumentException) {
             return Encoding.Default;
         }
     }
 
-    // spec defines what a "token" is, hence the long character list
-    [GeneratedRegex(";\\s*charset=(([!#$%&'*+\\-.^_`|~]|\\d|[a-z])+)", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex CreateCharsetRegex();
+    private string GetStringBody() => this.GetResponseEncoding().GetString(this.ResponseBody);
 }

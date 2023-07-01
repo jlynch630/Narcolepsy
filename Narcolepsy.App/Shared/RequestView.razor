@@ -1,44 +1,73 @@
 ﻿@using Narcolepsy.App.Collections
 @using Narcolepsy.App.Services
-@ using Narcolepsy.Platform.Collections;
-using Narcolepsy.App.Collections;
-@inject RequestManager RequestManager
-@inject FileStorage Storage
-<div class="app-container">
-    <RequestHeader Context="ActiveRequest?.Context"/>
-    <RequestList ActiveRequest="ActiveRequest" ActiveRequestChanged="ActiveRequestChanged" Requests="RequestList" OnCreateRequest="CreateRequest"/>
-    <main class="request-view-area">
-        @ActiveRequest?.Render()
-    </main>
-</div>
+@using System.Diagnostics
+@implements IAsyncDisposable
+@inherits StateSensitiveComponent<Collection>
+@inject IStorage Storage;
+@inject ILifecycleManager LifecycleManager;
+
+<CascadingValue Value="Collection">
+    <div class="app-container">
+        <RequestHeader />
+        <RequestList />
+        <main class="request-view-area">
+            @Active?.Request.Render()
+        </main>
+    </div>
+</CascadingValue>
 
 @code {
-
     [Parameter]
     public Collection Collection { get; set; }
 
-    private Request ActiveRequest;
+    private SavedRequest Active => this.Collection.ActiveRequest?.Value;
+
+    private System.Timers.Timer AutosaveTimer = new();
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();
 
-        ActiveRequest = this.RequestList.FirstOrDefault();
+        this.Collection.ActiveRequest.Value ??= this.Collection.Requests.FirstOrDefault();
+        this.UpdateOnChange(c => c.ActiveRequest);
+        this.AutosaveTimer.Elapsed += this.Save;
+        this.AutosaveTimer.Interval = 5000;
+        this.AutosaveTimer.Start();
+
+        // TODO: all this
+        this.Collection.RequestAdded += RequestAdded;
+        this.Collection.RequestRemoved += RequestRemoved;
+        this.LifecycleManager.Deactivated += (_, _) => {
+            // i don't want to call .wait either. I'm sorry
+            Task.Run(() => this.Storage.SaveCollectionAsync(this.Collection)).Wait();
+        };
+
+        this.LifecycleManager.Stopped += (_, _) => {
+            // i don't want to call .wait either. I'm sorry
+            Task.Run(() => this.Storage.SaveCollectionAsync(this.Collection)).Wait();
+        };
     }
 
-    private async Task CreateRequest() {
-        Request NewRequest = await RequestManager.CreateRequestAsync("HTTP", "New Request");
-        this.RequestList.Add(NewRequest);
-        await ActiveRequestChanged(NewRequest);
+    private async void RequestAdded(object sender, CollectionUpdatedEventArgs e) {
+        await this.Storage.SaveCollectionAsync(this.Collection);
     }
 
-    private async Task ActiveRequestChanged(Request newActive) {
-        if (newActive == ActiveRequest) return;
-
-    // save the old one!
-        if (ActiveRequest is not null)
-            await Collection.SaveRequestAsync(ActiveRequest, Storage);
-        await Storage.SaveCollectionAsync(Collection, "default");
-        ActiveRequest = newActive;
+    private async void RequestRemoved(object sender, CollectionUpdatedEventArgs e) {
+        await this.Storage.DeleteRequestAsync(e.Request.Id);
+        await this.Storage.SaveCollectionAsync(this.Collection);
     }
 
+    private void Save(object sender, EventArgs e) {
+        this.SaveActive();
+    }
+
+    private Task SaveActive() => this.Storage.SaveRequestAsync(this.Active);
+
+    protected override Collection StateProvider => this.Collection;
+
+    public async ValueTask DisposeAsync() {
+        base.Dispose();
+        this.Collection.RequestAdded -= RequestAdded;
+        this.Collection.RequestRemoved -= RequestRemoved;
+        await this.SaveActive();
+    }
 }

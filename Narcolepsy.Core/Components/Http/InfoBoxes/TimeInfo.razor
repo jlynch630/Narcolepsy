@@ -1,15 +1,17 @@
 ﻿@GetFormattedExecutionTime(Context.ExecutionTime)
 
 @code {
+
     [Parameter]
     public HttpResponse Context { get; set; }
-    
+
     private string GetFormattedExecutionTime(TimeSpan time) {
-        // ms, s, min
+    // ms, s, min
         if (time.TotalSeconds < 1)
             return $"{time.TotalMilliseconds:0.##} ms";
         if (time.TotalMinutes < 1)
             return $"{time.TotalSeconds:0.###} s";
         return $"{time:m}m {time:s\\.ff}s";
     }
+
 }

@@ -1,16 +1,17 @@
-@using Narcolepsy.Core.Http.Body;
-@using System.Collections.ObjectModel;
+@using Narcolepsy.Core.Http.Body
 <div class="empty-background"></div>
 
 @code {
+
     [Parameter]
     public IHttpRequestContext Context { get; set; }
 
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        this.Context.Body.Value = new EmptyBody();
+        Context.Body.Value = new EmptyBody();
 
-        this.Context.Headers.RemoveAutoHeader("Content-Type");
+        Context.Headers.RemoveAutoHeader("Content-Type");
     }
+
 }

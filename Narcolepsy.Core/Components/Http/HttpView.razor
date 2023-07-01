@@ -1,23 +1,25 @@
 ﻿<div class="view-container">
     <UrlMethodInput Context="Context" Configuration="Configuration"/>
 
-    <ResponseInfo Context="Context" Configuration="Configuration" />
+    <ResponseInfo Context="Context" Configuration="Configuration"/>
 
-    <Tabs 
+    <Tabs
         Context="Context"
         Configuration="Configuration"
         TabList="Configuration.RequestTabs"
         StateId="http-tab-list-request"/>
 
-    <ResponseView 
+    <ResponseView
         Context="Context"
-        Configuration="Configuration" />
+        Configuration="Configuration"/>
 </div>
 
 @code {
+
     [Parameter]
     public IHttpRequestContext Context { get; set; }
 
     [Parameter]
     public HttpViewConfiguration Configuration { get; set; }
+
 }

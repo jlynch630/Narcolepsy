@@ -1,0 +1,24 @@
+﻿@page "/"
+@using Narcolepsy.LogConsole.Services
+@using Narcolepsy.LogConsole.Data
+@inject LogService LogService;
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+@foreach (LogEntry Entry in Messages) {
+    <p>@Entry.ToString()</p>
+}
+
+@code {
+    private readonly List<LogEntry> Messages = new();
+    protected override Task OnInitializedAsync() {
+        this.LogService.Connect();
+        this.LogService.LogEntryAvailable += (s, e) => {
+            Messages.Add(e);
+            this.InvokeAsync(this.StateHasChanged);
+        };
+        return base.OnInitializedAsync();
+    }
+
+}

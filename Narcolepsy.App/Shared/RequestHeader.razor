@@ -1,14 +1,21 @@
-﻿@inherits Narcolepsy.Platform.Rendering.ContextSensitiveComponent<IRequestContext>
+﻿@inherits Narcolepsy.Platform.Rendering.StateSensitiveComponent<IRequestContext>
 
 <header class="request-info-toolbar">
-    <span class="request-name">@Context?.Name.Value</span>
+    @if (StateProvider?.Name.Value is not null) {
+        <EditableText @bind-Text="@StateProvider.Name.Value" @bind-Editing="Editing" AutoGrow="EditableText.AutoGrowAlignment.Center" />
+    }
 </header>
 
 @code {
+    [CascadingParameter]
+    public Collection Collection { get; set; }
+
+    private bool Editing;
 
     protected override void OnInitialized() {
         base.OnInitialized();
         UpdateOnChange(ctx => ctx.Name);
     }
 
+    protected override IRequestContext StateProvider => Collection?.ActiveRequest.Value?.Request.Context;
 }

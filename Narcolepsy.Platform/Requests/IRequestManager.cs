@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Components;
 
 public interface IRequestManager {
-    void RegisterType<TContext, TSaveState, TView, TViewConfiguration>(string name, Func<TSaveState?, TContext> contextFactory, TViewConfiguration viewConfig)
+    IRequestDefinitionBuilder RegisterType<TContext, TSaveState, TView, TViewConfiguration>(string name, Func<TSaveState?, TContext> contextFactory, TViewConfiguration viewConfig)
         where TContext : IRequestContext
         where TSaveState : class
         where TView : IComponent

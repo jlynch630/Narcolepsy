@@ -1,15 +1,9 @@
-﻿namespace Narcolepsy.Core.Interop {
-    using Microsoft.JSInterop;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.Core.Interop;
 
-    public class MonacoTextModel {
-        internal IJSObjectReference JsReference { get; }
+using Microsoft.JSInterop;
 
-        internal MonacoTextModel(IJSObjectReference reference) => this.JsReference = reference;
+public class MonacoTextModel {
+    internal MonacoTextModel(IJSObjectReference reference) => this.JsReference = reference;
 
-    }
+    internal IJSObjectReference JsReference { get; }
 }

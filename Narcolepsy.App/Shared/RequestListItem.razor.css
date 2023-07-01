@@ -4,6 +4,7 @@
 	user-select: none;
 	cursor: pointer;
 	transition: background 100ms ease;
+	position: relative;
 }
 
 	.request-list-item.active {
@@ -25,4 +26,14 @@
 
 	.request-list-item:active {
 		background: rgba(0,0,0,0.25);
+	}
+
+::deep .delete-btn {
+	background-color: var(--color-danger);
+}
+	::deep .delete-btn:hover {
+		background-color: var(--color-danger-dark);
+	}
+	::deep .delete-btn:active {
+		background-color: var(--color-danger-darker);
 	}

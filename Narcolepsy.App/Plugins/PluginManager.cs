@@ -6,6 +6,7 @@ using Core;
 using Platform;
 using Platform.Requests;
 using Platform.Serialization;
+using Requests;
 using Thrift;
 
 internal class PluginManager {

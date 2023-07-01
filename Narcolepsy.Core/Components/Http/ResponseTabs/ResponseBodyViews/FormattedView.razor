@@ -1,14 +1,12 @@
 ﻿@inherits ContextSensitiveComponent<IHttpRequestContext>
-@using System.Text
-@using Microsoft.JSInterop
-@using Narcolepsy.Core.Interop
 @inject IJSRuntime JsRuntime
 @inject NarcolepsyJs JsService
 
 <div class="response-text" @ref="EditorElement"></div>
 
 @code {
-    private HttpResponse? Response => this.Context.Response.Value;
+
+    private HttpResponse? Response => Context.Response.Value;
 
     private MonacoEditor Editor;
 
@@ -18,36 +16,37 @@
         await base.OnInitializedAsync();
     }
 
-    protected override async Task OnContextChangedAsync() {
-        await base.OnContextChangedAsync();
-        this.Context.Response.ValueChanged += async (_, r) => {
-            await this.SetModel();
-            this.StateHasChanged();
+    protected override async Task OnStateChangedAsync() {
+        await base.OnStateChangedAsync();
+        Context.Response.ValueChanged += async (_, r) => {
+            await SetModel();
+            StateHasChanged();
         };
 
-        if (this.Editor is not null)
-            await this.SetModel();
+        if (Editor is not null)
+            await SetModel();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         await base.OnAfterRenderAsync(firstRender);
         if (!firstRender) return;
 
-        this.Editor = await this.JsService.CreateEditor(this.EditorElement, "plaintext", true, "");
-        await this.SetModel();
+        Editor = await JsService.CreateEditor(EditorElement, "plaintext", true, "");
+        await SetModel();
     }
 
     private async Task SetModel() {
-        // set the model
+    // set the model
         if (Response is null) {
-            await this.Editor.SetModel(await this.JsService.CreateTextModel("", "plaintext"));
+            await Editor.SetModel(await JsService.CreateTextModel("", "plaintext"));
             return;
         }
 
-        // detect the language
+    // detect the language
         MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(Response.ResponseHeaders.GetHeaderValue("Content-Type"));
 
-        MonacoTextModel NewModel = await this.JsService.CreateTextModel(await this.JsService.FormatCode(Response.BodyText, Language.PrimaryExtension), Language.Id);
-        await this.Editor.SetModel(NewModel);
+        MonacoTextModel NewModel = await JsService.CreateTextModel(await JsService.FormatCode(Response.BodyText, Language.PrimaryExtension), Language.Id);
+        await Editor.SetModel(NewModel);
     }
+
 }

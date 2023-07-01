@@ -1,0 +1,55 @@
+﻿@inherits StyledHtmlComponent
+<div class="@GetClassName("container", this.Editing ? "editing" : null, this.AutoGrow is null ? null : $"grow-{this.AutoGrow.Value}")" @attributes="this.Attributes">
+    <span class="text" @ondblclick="() => this.EditingChanged.InvokeAsync(true)">@Text</span>
+    <input class="input" @onclick:stopPropagation value="@Text" @oninput="(e) => this.TextChanged.InvokeAsync(e.Value as string)" @onkeyup="KeyUp" @onblur="StopEditing" @ref="InputRef" />
+    @ChildContent
+</div>
+
+@code {
+    private ElementReference InputRef;
+
+    [Parameter]
+    public string Text { get; set; } = "";
+
+
+    [Parameter]
+    public AutoGrowAlignment? AutoGrow { get; set; }
+
+    [Parameter]
+    public EventCallback<string> TextChanged { get; set; }
+
+    [Parameter]
+    public bool Editing { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> EditingChanged { get; set; }
+
+    private bool WasEditing;
+
+    public override async Task SetParametersAsync(ParameterView parameters) {
+        this.WasEditing = this.Editing;
+        await base.SetParametersAsync(parameters);
+    }
+
+    private async Task KeyUp(KeyboardEventArgs e) {
+        if (e.Key is not "Enter") return;
+        await this.StopEditing();
+    }
+
+    private async Task StopEditing() {
+        await this.EditingChanged.InvokeAsync(false);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!this.WasEditing && this.Editing)
+            await InputRef.FocusAsync();
+    }
+
+    public enum AutoGrowAlignment {
+        Left,
+        Right,
+        Center
+    }
+}

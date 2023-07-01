@@ -1,12 +1,5 @@
-﻿namespace Narcolepsy.Core.Http.Body
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.Core.Http.Body;
 
-    internal class EmptyBody : IHttpBody {
-        public ValueTask<Stream> GetStreamAsync() => ValueTask.FromResult(Stream.Null);
-    }
+internal class EmptyBody : IHttpBody {
+    public ValueTask<Stream> GetStreamAsync() => ValueTask.FromResult(Stream.Null);
 }

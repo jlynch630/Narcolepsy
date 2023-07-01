@@ -1,18 +1,12 @@
-﻿namespace Narcolepsy.Core.Renderables.BodyEditors {
-    using Microsoft.AspNetCore.Components;
-    using Narcolepsy.Core.Http;
-    using Narcolepsy.Platform.Rendering;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿namespace Narcolepsy.Core.Renderables.BodyEditors;
 
-    internal class SimpleBodyEditor<TComponent> : Renderable<TComponent, IHttpRequestContext>, IBodyEditor where TComponent : IComponent {
-        public string Name { get; }
+using Http;
+using Microsoft.AspNetCore.Components;
+using Platform.Rendering;
 
-        public SimpleBodyEditor(string name) {
-            this.Name = name;
-        }
-    }
+internal class SimpleBodyEditor<TComponent> : Renderable<TComponent, IHttpRequestContext>, IBodyEditor
+    where TComponent : IComponent {
+    public SimpleBodyEditor(string name) => this.Name = name;
+
+    public string Name { get; }
 }
