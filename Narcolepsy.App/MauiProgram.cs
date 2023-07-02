@@ -6,6 +6,9 @@ using Plugins;
 using Services;
 using Plugins.Requests;
 using Narcolepsy.Platform.Logging;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 
 public static class MauiProgram {
     public static MauiApp CreateMauiApp() {
@@ -20,11 +23,11 @@ public static class MauiProgram {
         Builder.Services.AddMauiBlazorWebView();
 #if DEBUG
         Builder.Services.AddBlazorWebViewDeveloperTools();
-
-#if WINDOWS
 #endif
-#endif
-
+        Builder.Configuration.Sources.Add(new JsonConfigurationSource() { Path = "./appsettings.json"} );
+        Builder.Logging.ClearProviders();
+        Builder.Logging.AddDebug();
+        //Builder.Logging.AddProvider(new NarcolepsyLoggerProvider());
         Builder.Services.AddSingleton<AssetManager>();
         Builder.Services.AddSingleton<PluginManager>();
         Builder.Services.AddSingleton<SerializationManager>();
@@ -37,7 +40,6 @@ public static class MauiProgram {
         Logger.AddSink(LogService);
         Builder.Services.AddSingleton(LogService);
 #endif
-
         PluginManager.InitializePluginServices(Builder.Services);
 
         return Builder.Build();

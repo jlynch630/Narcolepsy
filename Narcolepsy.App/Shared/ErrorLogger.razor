@@ -1,0 +1,13 @@
+﻿@using Narcolepsy.Platform.Logging
+<h3>Error Loggor</h3>
+
+@code {
+    [Parameter]
+    public Exception Exception { get; set; }
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        Logger.Error(this.Exception, "Unhandled Blazor Exception Occurred");
+    }
+
+}

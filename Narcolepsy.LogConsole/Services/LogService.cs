@@ -45,8 +45,15 @@
                 return new LogToken(StringWriter.ToString(), DefaultStyle with { Foreground = "#4DD0E1" });
             });
 
-            LogToken[] Tokens = new[] { Time, Space, Level, Space, Source, Space }.Concat(MessageTokens).ToArray();
-            this.RecordLogMessage(new LogEntry(Tokens));
+            List<LogToken> Tokens = new[] { Time, Space, Level, Space, Source, Space }.Concat(MessageTokens).ToList();
+
+            if (logEvent.Exception is not null) {
+                int Length = Time.Text.Length + Level.Text.Length + Source.Text.Length + 3; // 3 spaces;
+                string Offset = "".PadLeft(Length);
+                string Text = "\n" + String.Join("\n", logEvent.Exception.ToString().Split("\n").Select(t => Offset + t));
+                Tokens.Add(new LogToken(Text, DefaultStyle with { Italic = true }));
+            }
+            this.RecordLogMessage(new LogEntry(Tokens.ToArray()));
         }
     }
 }

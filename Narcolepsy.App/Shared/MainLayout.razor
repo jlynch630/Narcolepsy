@@ -1,2 +1,10 @@
 ﻿@inherits LayoutComponentBase
-@Body
+
+<ErrorBoundary Context="e">
+    <ChildContent>
+        @Body
+    </ChildContent>
+    <ErrorContent>
+        <ErrorLogger Exception="e" />
+    </ErrorContent>
+</ErrorBoundary>
