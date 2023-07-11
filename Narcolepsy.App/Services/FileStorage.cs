@@ -15,6 +15,7 @@ internal class FileStorage : IStorage {
     public FileStorage(SerializationManager serializationManager, RequestManager requestManager) {
         this.SerializationManager = serializationManager;
         this.RequestManager = requestManager;
+        Logger.Debug("Using FileStorage storage backend");
     }
 
     public async Task<Collection> LoadCollectionAsync(string collectionId) {
@@ -23,12 +24,19 @@ internal class FileStorage : IStorage {
 
             string Text = await File.ReadAllTextAsync(Path);
 
+            Logger.Verbose("Loading {Length} byte collection {Id} from {Path}", Text.Length, collectionId, Path);
             CollectionSnapshot Snapshot = JsonSerializer.Deserialize<CollectionSnapshot>(Text);
 
             // then just create the collection from the snapshot
             SavedRequest[] SavedRequests = await Task.WhenAll(Snapshot.FileIds.Select(this.LoadRequestAsync));
-
-            return new Collection(collectionId, Snapshot.Name, SavedRequests.Where(r => r is not null).ToList());
+            List<SavedRequest> FilteredSavedRequests = SavedRequests.Where(r => r is not null).ToList();
+            if (FilteredSavedRequests.Count < SavedRequests.Length)
+                Logger.Warning(
+                    "Unable to successfully load all requests from collection {Id}. Requested: {RequestCount}, Loaded: {ActualCount}",
+                    collectionId, SavedRequests.Length, FilteredSavedRequests.Count);
+            
+            Logger.Verbose("Loaded collection {Id} with {Count} requests", collectionId, FilteredSavedRequests.Count);
+            return new Collection(collectionId, Snapshot.Name, FilteredSavedRequests);
         }
         catch (FileNotFoundException e) {
             Logger.Warning(e, "Attempted to load nonexistent collection {CollectionId}", collectionId);
@@ -44,8 +52,10 @@ internal class FileStorage : IStorage {
         string FilePath = FileStorage.ResolvePathByFileId(id);
         byte[] FileBytes = await File.ReadAllBytesAsync(FilePath);
         try {
+            Logger.Verbose("Loading {FileBytes} byte request {Id} from {Path}", FileBytes.Length, id, FilePath);
             RequestSnapshot Snapshot = RequestSnapshot.Deserialize(FileBytes);
             Request Req = await this.RequestManager.CreateRequestAsync(Snapshot);
+
             return new SavedRequest(id, Req);
         }
         catch (Exception e) {
@@ -62,6 +72,8 @@ internal class FileStorage : IStorage {
         await Task.WhenAll(collection.Requests.Select(this.SaveRequestAsync));
 
         await File.WriteAllTextAsync(Path, Json);
+        Logger.Verbose("Saved {FileBytes} byte collection {Id} to {Path}", Json.Length, collection.Id, Path);
+
     }
 
     public async Task SaveRequestAsync(SavedRequest request) {
@@ -71,11 +83,14 @@ internal class FileStorage : IStorage {
         string FilePath = FileStorage.ResolvePathByFileId(request.Id);
 
         await File.WriteAllBytesAsync(FilePath, Snapshot.Serialize());
+        Logger.Verbose("Saved request {Id} to {Path}", request.Id, FilePath);
+
     }
 
     public Task DeleteRequestAsync(string requestId) {
         string Path = FileStorage.ResolvePathByFileId(requestId);
         File.Delete(Path);
+        Logger.Verbose("Deleted request {Id}", requestId);
         return Task.CompletedTask;
     }
 

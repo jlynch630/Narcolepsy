@@ -43,15 +43,16 @@
     protected override void OnParametersSet() {
         base.OnParametersSet();
 
-        ActiveTab ??= TabList[0];
+        ActiveTab ??= TabList.Count == 0 ? null : TabList[0];
     }
 
     protected override async Task OnStateChangedAsync() {
         await base.OnStateChangedAsync();
 
         if (StateId is null) return;
-        string? SetTab = Context.State.Get<string?>(StateId, null);
+        string? SetTab = Context?.State.Get<string?>(StateId, null);
 
+        if (TabList.Count == 0) return;
         ActiveTab = SetTab is null ? TabList[0] : TabList.FirstOrDefault(t => t.Title == SetTab) ?? TabList[0];
     }
 

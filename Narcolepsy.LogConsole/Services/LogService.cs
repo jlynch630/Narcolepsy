@@ -9,7 +9,12 @@
         private MessageTemplateParser TemplateParser = new();
         public event EventHandler<LogEntry> LogEntryAvailable;
 
-        public void RecordLogMessage(LogEntry entry) => this.LogEntryAvailable?.Invoke(this, entry);
+        public List<LogEntry> LogEntries { get; } = new();
+
+        public void RecordLogMessage(LogEntry entry) {
+            this.LogEntries.Add(entry);
+            this.LogEntryAvailable?.Invoke(this, entry);
+        }
 
         public void Emit(LogEvent logEvent) {
             // convert the log event to a log entry

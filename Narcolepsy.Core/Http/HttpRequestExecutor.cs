@@ -2,7 +2,9 @@
 
 using System.Diagnostics;
 using System.Net;
+using System.Reflection.PortableExecutable;
 using Exceptions;
+using Narcolepsy.Platform.Logging;
 
 internal class HttpRequestExecutor {
     private readonly HttpClient Client = new(new HttpClientHandler {
@@ -55,12 +57,16 @@ internal class HttpRequestExecutor {
     }
 
     private async Task<HttpRequestMessage> BuildRequestMessageAsync(IHttpRequestContext request) {
+        Logger.Debug("Building request from body {BodyType}", request.Body.GetType().Name);
         HttpContent Content = new StreamContent(await request.Body.Value.GetStreamAsync());
 
         // do content headers first
         foreach (HttpHeader Header in request.Headers.Value.Where(
-                     h => h.IsEnabled && h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
+                     h => h.IsEnabled && h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase))) {
             Content.Headers.Add(Header.Name, Header.Value);
+            Logger.Verbose("Adding content header {HeaderName}", Header.Name);
+
+        }
 
         // then other headers
         HttpRequestMessage Message = new() {
@@ -70,9 +76,12 @@ internal class HttpRequestExecutor {
                                            };
 
         foreach (HttpHeader Header in request.Headers.Value.Where(
-                     h => h.IsEnabled && !h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase)))
+                     h => h.IsEnabled && !h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase))) {
             Message.Headers.Add(Header.Name, Header.Value);
+            Logger.Verbose("Adding header {HeaderName}", Header.Name);
+        }
 
+        Logger.Debug("Built request {Request}", Message);
         return Message;
     }
 
@@ -81,6 +90,8 @@ internal class HttpRequestExecutor {
             Stopwatch Stopwatch = Stopwatch.StartNew();
             HttpResponseMessage Response = await this.Client.SendAsync(request, token);
             Stopwatch.Stop();
+            Logger.Debug("Successfully executed request in {Duration}ms", Stopwatch.ElapsedMilliseconds);
+
             return new HttpResponse(
                 DateTime.Now,
                 Stopwatch.Elapsed,
@@ -89,10 +100,12 @@ internal class HttpRequestExecutor {
                 Response.ReasonPhrase ?? "",
                 Response.Headers.Concat(Response.Content.Headers)
                         .SelectMany(h => h.Value.Select(val => new HttpResponseHeader(h.Key, val))).ToArray(),
-                await Response.Content.ReadAsByteArrayAsync(),
+                await Response.Content.ReadAsByteArrayAsync(token),
                 null);
         }
         catch (Exception e) {
+            Logger.Debug(e, "Request failed");
+
             return HttpResponse.CreateErrorResponse(
                 new RequestExecutionError(
                     null,

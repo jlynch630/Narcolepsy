@@ -35,9 +35,6 @@
     private Task CreatePrimaryRequest() => this.CreateRequest(this.PrimaryRequestDefinition?.Name);
 
     private Task CreateRequest(RequestDefinition def) {
-
-        throw new Exception();
-
         this.PrimaryRequestDefinition = def;
         return this.CreateRequest(def.Name);
     }

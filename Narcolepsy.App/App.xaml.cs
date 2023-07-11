@@ -1,6 +1,7 @@
 ﻿namespace Narcolepsy.App;
 
 using Services;
+using System.Diagnostics;
 
 public partial class App : Application {
     private readonly LifecycleManager Manager;
@@ -24,8 +25,12 @@ public partial class App : Application {
 
     protected override void OnStart() {
         base.OnStart();
-#if DEBUG
-        LogConsole.LogConsole.Create();
+
+#if !DEBUG
+        // in a release build, only show the log console when NARCOLEPSY_SHOW_LOG_CONSOLE is defined
+        if (Environment.GetEnvironmentVariable("NARCOLEPSY_SHOW_LOG_CONSOLE") is null) return;
 #endif
+
+        LogConsole.LogConsole.Create();
     }
 }

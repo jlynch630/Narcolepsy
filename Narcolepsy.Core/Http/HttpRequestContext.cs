@@ -14,6 +14,7 @@ internal class HttpRequestContext : RequestContext<HttpRequestContextSnapshot>, 
         this.Executor = HttpRequestExecutor.Instance;
 
         if (snapshot is null) return;
+        Logger.Verbose("Initializing HttpRequestContext from snapshot {Snapshot}", snapshot);
         this.Name.Value = snapshot.Name;
         this.Url.Value = snapshot.Url;
         this.Method.Value = snapshot.Method;

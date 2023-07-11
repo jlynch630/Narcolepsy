@@ -2,8 +2,11 @@
 namespace Narcolepsy.App.Plugins.Requests;
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.Maui.Controls;
+using Narcolepsy.Platform.Logging;
 using Platform.Requests;
 using Platform.Serialization;
+using System.Reflection;
 
 internal delegate Task<Request> RequestFactory(string? name, byte[]? serialized, object? saveState);
 
@@ -20,12 +23,37 @@ internal class RequestManager : IRequestManager {
         this.SerializationManager = serializationManager;
 
     public void Configure<TViewConfiguration>(string name, Action<TViewConfiguration> buildDelegate) {
-        if (!this.ViewConfigurations.TryGetValue(name, out object? Config))
-            throw new NotImplementedException();
+#if DEBUG
+        string? CallingAssembly = Assembly.GetCallingAssembly().GetName().Name;
+#endif
+        if (!this.ViewConfigurations.TryGetValue(name, out object? Config)) {
+#if DEBUG
+            throw new RequestConfigurationException(
+                $"A plugin from assembly {CallingAssembly} tried to configure a request type ({name}) that didn't exist. The available request types are: {String.Join(", ", this.RequestDefinitions.Select(x => x.Name))}");
+#else
+            Logger.Warning("A plugin tried to configure a request type ({Type}) that didn't exist. This issue would throw an exception in debug but silently fails in release mode", name);
+            return;
+#endif
+        }
 
-        if (Config is not TViewConfiguration ViewConfig)
-            throw new NotImplementedException();
+        if (Config is not TViewConfiguration ViewConfig) {
+#if DEBUG
+            throw new RequestConfigurationException(
+                $"A plugin from assembly {CallingAssembly} tried to configure a request type ({name}) with an improper TViewConfiguration type {typeof(TViewConfiguration).Name}. The expected view configuration type is {Config.GetType().Name}");
+#else
+            Logger.Warning(
+                "A plugin tried to configure a request type ({Type}) with an improper TViewConfiguration type. This issue would throw an exception in debug but silently fails in release mode",
+                name);
+            return;
+#endif
+        }
 
+#if DEBUG
+        Logger.Verbose(
+            "Plugin from assembly {SourceAssembly} configured request type {RequestType}",
+            CallingAssembly, 
+            name);
+#endif
         buildDelegate(ViewConfig);
     }
 
@@ -35,6 +63,10 @@ internal class RequestManager : IRequestManager {
         where TSaveState : class
         where TView : IComponent
         where TViewConfiguration : notnull {
+        if (this.RequestFactories.ContainsKey(name))
+            throw new RequestConfigurationException(
+                $"Request type ({name}) already exists.");
+
         IViewBuilder ViewBuilder = ViewBuilder<TViewConfiguration>.Create<TView>(viewConfig);
 
         async Task<Request> MakeRequestAsync(string? reqName, byte[]? serialized, object? saveState) {
@@ -58,23 +90,14 @@ internal class RequestManager : IRequestManager {
         return new RequestDefinition.RequestDefinitionBuilder(Definition);
     }
 
-    public Task<Request> CreateRequestAsync(string typeName, string name) {
-        if (!this.RequestFactories.TryGetValue(typeName, out RequestDefinition? Definition))
-            throw new NotImplementedException();
+    public Task<Request> CreateRequestAsync(string typeName, string name) => this.CreateRequestAsync(typeName, name, null, null);
 
-        return Definition.RequestFactory(name, null, null);
-    }
+    public Task<Request> CreateRequestAsync(RequestSnapshot snapshot) => this.CreateRequestAsync(snapshot.RequestType, null, snapshot.SaveState, null);
 
-    public Task<Request> CreateRequestAsync(RequestSnapshot snapshot) {
-        if (!this.RequestFactories.TryGetValue(snapshot.RequestType, out RequestDefinition? Definition))
-            throw new NotImplementedException();
+    public Task<Request> CreateRequestAsync(string name, string type, object saveState) => this.CreateRequestAsync(type, name, null, saveState);
 
-        return Definition.RequestFactory(null, snapshot.SaveState, null);
-    }
-    public Task<Request> CreateRequestAsync(string name, string type, object saveState) {
-        if (!this.RequestFactories.TryGetValue(type, out RequestDefinition? Definition))
-            throw new NotImplementedException();
-
-        return Definition.RequestFactory(name, null, saveState);
-    }
+    private Task<Request> CreateRequestAsync(string type, string? name, byte[]? serialized, object? saveState) =>
+        !this.RequestFactories.TryGetValue(type, out RequestDefinition? Definition)
+            ? throw new RequestConfigurationException($"Failed to create request. Request type {type} does not exist")
+            : Definition.RequestFactory(name, serialized, saveState);
 }

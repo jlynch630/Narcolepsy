@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Platform.Requests;
     using Platform.Serialization;
+    using Narcolepsy.Platform.Logging;
 
     internal class DuplicateService {
         private readonly RequestManager RequestManager;

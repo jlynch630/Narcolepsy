@@ -2,6 +2,7 @@
 
 using System.Reflection;
 using Microsoft.JSInterop;
+using Narcolepsy.Platform.Logging;
 using Platform;
 
 internal class AssetManager : IAssetManager {
@@ -23,10 +24,14 @@ internal class AssetManager : IAssetManager {
 
     public async Task LoadAllScriptsAsync(IJSRuntime jsRuntime) {
         if (!this.ScriptsToLoad.Any()) return;
+        Logger.Debug("Loading {Count} scripts: {Scripts}", this.ScriptsToLoad.Count,
+            String.Join(", ", this.ScriptsToLoad));
         await jsRuntime.InvokeVoidAsync("injectScripts", String.Join("\0", this.ScriptsToLoad));
     }
 
     public async Task LoadAllStylesAsync(IJSRuntime jsRuntime) {
+        Logger.Debug("Loading {Count} styles: {Styles}", this.StylesToLoad.Count,
+            String.Join(", ", this.StylesToLoad));
         foreach (string Stylesheet in this.StylesToLoad)
             await jsRuntime.InvokeVoidAsync("injectStyle", Stylesheet);
     }

@@ -21,13 +21,12 @@ public static class MauiProgram {
 #pragma warning restore MCT001 // `.UseMauiCommunityToolkit()` Not Found on MauiAppBuilder
 
         Builder.Services.AddMauiBlazorWebView();
-#if DEBUG
-        Builder.Services.AddBlazorWebViewDeveloperTools();
-#endif
-        Builder.Configuration.Sources.Add(new JsonConfigurationSource() { Path = "./appsettings.json"} );
         Builder.Logging.ClearProviders();
+#if DEBUG
+        Builder.Configuration.Sources.Add(new JsonConfigurationSource() { Path = "./appsettings.json"} );
+        Builder.Services.AddBlazorWebViewDeveloperTools();
         Builder.Logging.AddDebug();
-        //Builder.Logging.AddProvider(new NarcolepsyLoggerProvider());
+#endif
         Builder.Services.AddSingleton<AssetManager>();
         Builder.Services.AddSingleton<PluginManager>();
         Builder.Services.AddSingleton<SerializationManager>();
@@ -35,11 +34,9 @@ public static class MauiProgram {
         Builder.Services.AddSingleton<DuplicateService>();
         Builder.Services.AddSingleton<IStorage, FileStorage>();
         Builder.Services.AddSingleton<ILifecycleManager>(LifecycleManager);
-#if DEBUG
         LogService LogService = new();
         Logger.AddSink(LogService);
         Builder.Services.AddSingleton(LogService);
-#endif
         PluginManager.InitializePluginServices(Builder.Services);
 
         return Builder.Build();

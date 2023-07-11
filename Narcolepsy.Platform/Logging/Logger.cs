@@ -12,14 +12,14 @@ public static class Logger {
 
     static Logger() =>
         Logger.Log = new LoggerConfiguration()
-                     .MinimumLevel.Debug()
+                     .MinimumLevel.Verbose()
                      .WriteTo.Console()
                      .WriteTo.Debug()
                      .CreateLogger();
 
     public static void AddSink(ILogEventSink sink) {
         Logger.Log = new LoggerConfiguration()
-            .MinimumLevel.Debug()
+            .MinimumLevel.Verbose()
             .WriteTo.Console()
             .WriteTo.Debug()
             .WriteTo.Sink(sink)
@@ -33,13 +33,28 @@ public static class Logger {
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     [MessageTemplateFormatMethod("messageTemplate")]
+    public static void Debug(Exception e, string messageTemplate, params object?[]? propertyValues) =>
+        Logger.Write(LogEventLevel.Debug, Assembly.GetCallingAssembly(), messageTemplate, propertyValues, e);
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    [MessageTemplateFormatMethod("messageTemplate")]
     public static void Verbose(string messageTemplate, params object?[]? propertyValues) =>
         Logger.Write(LogEventLevel.Verbose, Assembly.GetCallingAssembly(), messageTemplate, propertyValues);
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     [MessageTemplateFormatMethod("messageTemplate")]
+    public static void Verbose(Exception e, string messageTemplate, params object?[]? propertyValues) =>
+        Logger.Write(LogEventLevel.Verbose, Assembly.GetCallingAssembly(), messageTemplate, propertyValues, e);
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    [MessageTemplateFormatMethod("messageTemplate")]
     public static void Information(string messageTemplate, params object?[]? propertyValues) =>
         Logger.Write(LogEventLevel.Information, Assembly.GetCallingAssembly(), messageTemplate, propertyValues);
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    [MessageTemplateFormatMethod("messageTemplate")]
+    public static void Information(Exception e, string messageTemplate, params object?[]? propertyValues) =>
+        Logger.Write(LogEventLevel.Information, Assembly.GetCallingAssembly(), messageTemplate, propertyValues, e);
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     [MessageTemplateFormatMethod("messageTemplate")]

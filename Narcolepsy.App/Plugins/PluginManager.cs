@@ -3,6 +3,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Core;
+using Narcolepsy.Platform.Logging;
 using Platform;
 using Platform.Requests;
 using Platform.Serialization;
@@ -32,26 +33,33 @@ internal class PluginManager {
         // todo: violate srp? refactor?
         // called during app startup
         IPluginSetup[] PluginSetups = PluginManager.PluginAssemblies.Value.SelectMany(
-                                                       a => a.ExportedTypes.Where(type =>
-                                                                 typeof(IPluginSetup).IsAssignableFrom(type))
-                                                             .Select(type =>
-                                                                 Activator.CreateInstance(type) as IPluginSetup)
+                                                       a => a.ExportedTypes.Where(type => typeof(IPluginSetup).IsAssignableFrom(type))
+                                                             .Select(type => Activator.CreateInstance(type) as IPluginSetup)
                                                              .Where(plugin => plugin is not null))
                                                    .ToArray();
 
-        foreach (IPluginSetup Setup in PluginSetups.Concat(PluginManager.DefaultPluginSetups))
+        foreach (IPluginSetup Setup in PluginSetups.Concat(PluginManager.DefaultPluginSetups)) {
             Setup.ConfigureServices(services);
+            Logger.Verbose("Configured services for {Plugin}", Setup.GetType().FullName);
+        }
     }
 
     public async Task InitializePluginsAsync() {
-        if (this.HasInitialized) return;
+        if (this.HasInitialized) {
+            Logger.Warning("Refusing to initialize plugins again, already initialized");
+            return;
+        }
         if (this.LoadedPluginList is null)
             this.LoadPlugins();
 
         NarcolepsyContext Context = this.CreateContext();
         // then initialize them all
-        foreach (LoadedPlugin Plugin in this.LoadedPluginList)
+        foreach (LoadedPlugin Plugin in this.LoadedPluginList) {
             await Plugin.Plugin.InitializeAsync(Context);
+            Logger.Information("Initialized {Source} plugin {Plugin}",
+                Plugin.Source is PluginSource.BuiltIn ? "built-in" : "dynamic", Plugin.Plugin.FullName);
+        }
+
         this.HasInitialized = true;
     }
 
@@ -66,6 +74,7 @@ internal class PluginManager {
                                                              new LoadedPlugin(plugin, PluginSource.Dynamic));
 
         this.LoadedPluginList = Default.Concat(Dynamic).ToArray();
+        Logger.Debug("Loaded {Count} total plugin(s)", this.LoadedPluginList.Length);
     }
 
     private static Assembly[] FindPluginAssemblies() {
@@ -81,7 +90,7 @@ internal class PluginManager {
         string AppDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         string PluginFolder = Path.Combine(AppDataRoot, "Narcolepsy", "Plugins");
         Directory.CreateDirectory(PluginFolder);
-
+        Logger.Debug("Using plugins directory: {Directory}", PluginFolder);
         return PluginFolder;
     }
 
@@ -95,6 +104,7 @@ internal class PluginManager {
                                                    .Where(plugin => plugin is not null))
                                          .ToArray();
 
+        Logger.Verbose("Found {Count} dynamic plugin(s)", Plugins.Length);
         return Plugins;
     }
 
@@ -103,8 +113,11 @@ internal class PluginManager {
             new[] { OSPlatform.Windows, OSPlatform.Linux, OSPlatform.OSX, OSPlatform.FreeBSD }.FirstOrDefault(
                 RuntimeInformation.IsOSPlatform);
 
+        Version Version = Assembly.GetCallingAssembly().GetName().Version ?? new Version("0.0.0.0");
+
+        Logger.Verbose("Initializing plugin context for platform {Platform}, version {Version}", Platform, Version);
         return new NarcolepsyContext(
-            Assembly.GetCallingAssembly().GetName().Version ?? new Version("0.0.0.0"),
+            Version,
             Platform,
             this.RequestManager,
             this.AssetManager,

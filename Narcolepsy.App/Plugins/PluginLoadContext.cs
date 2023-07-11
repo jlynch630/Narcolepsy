@@ -7,6 +7,7 @@
 
 namespace Narcolepsy.App.Plugins;
 
+using Narcolepsy.Platform.Logging;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -22,10 +23,16 @@ internal class PluginLoadContext : AssemblyLoadContext {
 
     public Assembly LoadPluginAssembly() {
         string PluginName = Path.GetFileNameWithoutExtension(this.PluginPath);
-        if (PluginName is null) throw new ApplicationException("Failed to load plugin");
+        if (PluginName is null) throw new PluginLoadException("Failed to load plugin, plugin path was null");
 
-        AssemblyName Name = new(PluginName);
-        return this.LoadFromAssemblyName(Name);
+        AssemblyName AssemblyName = new(PluginName);
+        try {
+            Assembly Loaded = this.LoadFromAssemblyName(AssemblyName);
+            Logger.Verbose("Loaded plugin assembly {PluginName}", PluginName);
+            return Loaded;
+        } catch (Exception e) {
+            throw new PluginLoadException("Failed to load plugin", e);
+        }
     }
 
     protected override Assembly Load(AssemblyName assemblyName) {

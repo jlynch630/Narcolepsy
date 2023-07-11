@@ -1,5 +1,6 @@
 ﻿namespace Narcolepsy.App.Collections;
 
+using Narcolepsy.Platform.Logging;
 using Narcolepsy.Platform.State;
 using Platform.Requests;
 
@@ -29,11 +30,13 @@ public class Collection {
     public void AddRequest(Request request) => this.AddRequest(new SavedRequest(request));
 
     public void AddRequest(SavedRequest request) {
+        Logger.Verbose("Added new request with id {RequestId} to collection {CollectionId}", request.Id, this.Id);
         this.RequestList.Add(request);
         this.RequestAdded?.Invoke(this, new CollectionUpdatedEventArgs(request));
     }
 
     public void RemoveRequest(SavedRequest request) {
+        Logger.Verbose("Removed request with id {RequestId} from collection {CollectionId}", request.Id, this.Id);
         this.RequestList.Remove(request);
         this.RequestRemoved?.Invoke(this, new CollectionUpdatedEventArgs(request));
     }
