@@ -38,6 +38,10 @@
         this.Collection.RequestRemoved += RequestRemoved;
         this.LifecycleManager.Deactivated += (_, _) => {
             // i don't want to call .wait either. I'm sorry
+
+
+
+
             Task.Run(() => this.Storage.SaveCollectionAsync(this.Collection)).Wait();
         };
 

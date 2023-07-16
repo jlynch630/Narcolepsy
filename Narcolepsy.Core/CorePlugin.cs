@@ -49,6 +49,7 @@ public class CorePlugin : IPlugin {
 
             config
                 .AddRequestBodyEditor<EmptyBodyView>("No Body")
+                .AddRequestBodyEditor<UrlEncodedFormBodyView>("Url Encoded Form")
                 .AddCodeBodyEditor("JSON", "json", "application/json; charset=utf-8")
                 .AddCodeBodyEditor("XML", "xml", "application/xml; charset=utf-8")
                 .AddCodeBodyEditor("Plain Text", "plaintext", "text/plain; charset=utf-8");

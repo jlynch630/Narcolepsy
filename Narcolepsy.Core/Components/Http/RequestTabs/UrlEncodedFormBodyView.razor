@@ -1,0 +1,79 @@
+﻿@using Narcolepsy.Core.Http.Body
+@inherits ContextSensitiveComponent<IHttpRequestContext>
+
+<div class="req-header-list">
+    @for (int i = 0; i < FormInputs.Count; i++) {
+        KeyValuePair<string, string> Header = FormInputs[i];
+        int HeaderIndex = i;
+
+        <div class="header-editor">
+            <input @ref="LastNameInput" placeholder="Name" class="header-edit name" @onchange="e => UpdateHeaderName(e, HeaderIndex)" value="@Header.Key" />
+            <input @ref="LastValueInput" placeholder="Value" class="header-edit value" @onchange="e => UpdateHeaderValue(e, HeaderIndex)" value="@Header.Value" />
+            
+            <button class="header-button material-symbols-rounded remove-btn" tabindex="-1" @onclick="() => RemoveHeader(HeaderIndex)">close</button>
+        </div>
+    }
+
+    <div class="header-editor new">
+        <input class="header-edit name" placeholder="Name" @onfocus="() => CreateNew(true)" />
+        <input class="header-edit value" placeholder="Value" @onfocus="() => CreateNew(false)" />
+    </div>
+</div>
+
+@code {
+    private UrlEncodedFormBody Body => Context.Body.Value as UrlEncodedFormBody;
+    private ElementReference LastNameInput;
+    private ElementReference LastValueInput;
+    private bool ShouldFocusLastName;
+    private bool ShouldFocusLastValue;
+
+    private List<KeyValuePair<string, string>> FormInputs => this.Body.FormInputs;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (ShouldFocusLastName) {
+            await LastNameInput.FocusAsync();
+            ShouldFocusLastName = false;
+        }
+
+        if (ShouldFocusLastValue) {
+            await LastValueInput.FocusAsync();
+            ShouldFocusLastValue = false;
+        }
+    }
+
+    private void UpdateHeaderValue(ChangeEventArgs e, int index) {
+        FormInputs[index] = new KeyValuePair<string, string>(FormInputs[index].Key, e.Value?.ToString() ?? "");
+
+    }
+
+    private void UpdateHeaderName(ChangeEventArgs e, int index) {
+        FormInputs[index] = new KeyValuePair<string, string>(e.Value?.ToString() ?? "", FormInputs[index].Value);
+    }
+
+    private void RemoveHeader(int index) {
+        FormInputs.RemoveAt(index);
+    }
+
+    private void CreateNew(bool focusOnName) {
+        FormInputs.Add(new KeyValuePair<string, string>("", ""));
+        ShouldFocusLastName = focusOnName;
+        ShouldFocusLastValue = !focusOnName;
+    }
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+
+        this.UpdateOnChange(c => c.Body);
+        if (this.Body is null)
+            Context.Body.Value = new UrlEncodedFormBody();
+
+        Context.Headers.SetAutoHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded",
+            "This header was added automatically based on the request body"
+            );
+    }
+
+}

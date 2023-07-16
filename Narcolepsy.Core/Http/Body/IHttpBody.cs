@@ -4,5 +4,5 @@ using System.Text.Json.Serialization;
 
 [JsonConverter(typeof(HttpBodyJsonConverter))]
 public interface IHttpBody {
-    public ValueTask<Stream> GetStreamAsync();
+    public ValueTask WriteAsync(Stream target);
 }

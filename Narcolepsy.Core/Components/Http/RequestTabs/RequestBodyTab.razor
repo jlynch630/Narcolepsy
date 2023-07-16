@@ -27,6 +27,8 @@
 
     private void ValueChanged(IBodyEditor newEditor) {
         ActiveBodyEditor = newEditor;
+
+        // no indexof on readonly list. who knows why
         int Index = 0;
         for (; Index < Configuration.RequestBodyEditors.Count; Index++)
             if (Configuration.RequestBodyEditors[Index] == newEditor) break;

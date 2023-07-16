@@ -11,10 +11,7 @@
 
         public IList<ThriftData> Data { get; set; } = new List<ThriftData>();
 
-        public ValueTask<Stream> GetStreamAsync() {
-            // very strange but whatever
-            Stream MemoryStream = new MemoryStream();
-
+        public async ValueTask WriteAsync(Stream target) {
             /*
              * Binary protocol Message, strict encoding, 12+ bytes:
                +--------+--------+--------+--------+--------+--------+--------+--------+--------+...+--------+--------+--------+--------+--------+
@@ -23,36 +20,33 @@
              */
 
             // version
-            MemoryStream.WriteByte(0b10000000);
-            MemoryStream.WriteByte(0b00000001);
+            target.WriteByte(0b10000000);
+            target.WriteByte(0b00000001);
 
             // unused
-            MemoryStream.WriteByte(0);
+            target.WriteByte(0);
 
             // message type
-            MemoryStream.WriteByte(0b00000001);
+            target.WriteByte(0b00000001);
 
             // name length
             IEnumerable<byte> NameLengthBytes = BitConverter.GetBytes(this.MethodName?.Length ?? 0);
             if (BitConverter.IsLittleEndian) NameLengthBytes = NameLengthBytes.Reverse();
 
-            MemoryStream.Write(NameLengthBytes.ToArray());
+            await target.WriteAsync(NameLengthBytes.ToArray());
 
             // name
             if (this.MethodName is not null)
-                MemoryStream.Write(Encoding.UTF8.GetBytes(this.MethodName));
+                await target.WriteAsync(Encoding.UTF8.GetBytes(this.MethodName));
 
             // sequence id
-            MemoryStream.Write(BitConverter.GetBytes(1));
+            await target.WriteAsync(BitConverter.GetBytes(1));
 
             foreach (ThriftData ThriftData in this.Data) {
-                ThriftData.WriteToStream(MemoryStream);
+                ThriftData.WriteToStream(target);
             }
 
-            MemoryStream.WriteByte(0);
-
-            MemoryStream.Seek(0, SeekOrigin.Begin);
-            return ValueTask.FromResult(MemoryStream);
+            target.WriteByte(0);
         }
     }
 }

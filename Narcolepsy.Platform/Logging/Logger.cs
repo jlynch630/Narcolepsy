@@ -12,14 +12,14 @@ public static class Logger {
 
     static Logger() =>
         Logger.Log = new LoggerConfiguration()
-                     .MinimumLevel.Verbose()
+                     .MinimumLevel.Debug()
                      .WriteTo.Console()
                      .WriteTo.Debug()
                      .CreateLogger();
 
     public static void AddSink(ILogEventSink sink) {
         Logger.Log = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
+            .MinimumLevel.Debug()
             .WriteTo.Console()
             .WriteTo.Debug()
             .WriteTo.Sink(sink)

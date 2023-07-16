@@ -25,7 +25,12 @@ internal class HttpRequestExecutor {
             HttpRequestMessage Message = await this.BuildRequestMessageAsync(request);
 
             // and execute
-            return await this.ExecuteMessageAsync(Message, token);
+            HttpResponse Response = await this.ExecuteMessageAsync(Message, token);
+            
+            // dispose the message
+            (Message.Content as StreamContent)?.Dispose();
+
+            return Response;
         }
         catch (Exception e) {
             return HttpResponse.CreateErrorResponse(
@@ -57,8 +62,11 @@ internal class HttpRequestExecutor {
     }
 
     private async Task<HttpRequestMessage> BuildRequestMessageAsync(IHttpRequestContext request) {
-        Logger.Debug("Building request from body {BodyType}", request.Body.GetType().Name);
-        HttpContent Content = new StreamContent(await request.Body.Value.GetStreamAsync());
+        Logger.Debug("Building request from body {BodyType}", request.Body.Value.GetType().Name);
+        MemoryStream ContentStream = new();
+        await request.Body.Value.WriteAsync(ContentStream);
+        ContentStream.Seek(0, SeekOrigin.Begin);
+        HttpContent Content = new StreamContent(ContentStream);
 
         // do content headers first
         foreach (HttpHeader Header in request.Headers.Value.Where(

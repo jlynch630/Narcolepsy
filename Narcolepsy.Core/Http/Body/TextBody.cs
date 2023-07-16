@@ -5,6 +5,5 @@ using System.Text;
 public class TextBody : IHttpBody {
     public string BodyContent { get; set; } = String.Empty;
 
-    public ValueTask<Stream> GetStreamAsync() =>
-        ValueTask.FromResult((Stream)new MemoryStream(Encoding.UTF8.GetBytes(this.BodyContent)));
+    public ValueTask WriteAsync(Stream target) => target.WriteAsync(Encoding.UTF8.GetBytes(this.BodyContent));
 }
