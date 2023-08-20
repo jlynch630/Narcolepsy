@@ -1,0 +1,42 @@
+﻿.status-bar-item {
+	border-left: 1px solid var(--color-gray);
+	padding: 2px 4px;
+	font-size: 0.8em;
+	display: flex;
+	align-items: center;
+}
+
+	.status-bar-item.good {
+		color: #4CAF50;
+		font-weight: 450;
+	}
+
+	.status-bar-item.bad {
+		color: #F44336;
+		font-weight: 450;
+	}
+
+	.status-bar-item.warning {
+		color: #F9A825;
+		font-weight: 450;
+	}
+
+	.interactive {
+		cursor: pointer;
+		user-select: none;
+		transition: background 150ms ease;
+	}
+
+	.interactive:hover {
+		background: var(--color-gray-dark);
+	}
+
+		.interactive:active {
+			background: #999;
+		}
+
+.material-symbols-rounded {
+	font-size: 14px;
+	margin-right: 2px;
+	font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 48;
+}

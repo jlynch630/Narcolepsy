@@ -1,9 +1,13 @@
 ﻿@inherits Narcolepsy.Platform.Rendering.StateSensitiveComponent<IRequestContext>
 
 <header class="request-info-toolbar">
+    <a href="/">
+        <img src="/icon.svg" class="logo" />
+    </a>
     @if (StateProvider?.Name.Value is not null) {
         <EditableText @bind-Text="@StateProvider.Name.Value" @bind-Editing="Editing" AutoGrow="EditableText.AutoGrowAlignment.Center" />
     }
+    <div class="caption-buttons"></div>
 </header>
 
 @code {

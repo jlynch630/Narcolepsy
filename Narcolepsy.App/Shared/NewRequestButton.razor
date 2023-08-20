@@ -10,8 +10,6 @@
         @foreach (RequestDefinition RequestDef in this.RequestManager.RequestDefinitions) {
             <MenuListItem Icon="@(RequestDef.Icon ?? "language")" OnClick="() => this.CreateRequest(RequestDef)">@RequestDef.Name Request</MenuListItem>
         }
-        <MenuListItem Icon="hub">GraphQL Request</MenuListItem>
-        <MenuListItem Icon="satellite_alt">RPC Request</MenuListItem>
         <Divider/>
         <MenuListItem Icon="cloud_download">Install More</MenuListItem>
     </ListItems>

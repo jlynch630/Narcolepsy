@@ -21,3 +21,7 @@ function injectStyle(path) {
 
 	document.head.appendChild(link);
 }
+
+function scrollToBottom(el) {
+	el.scrollTop = el.scrollHeight;
+}

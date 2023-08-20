@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <JsDep Include="Typescript\src\**\*.ts" />
+	  <Content Remove="Typescript\package.json" />
+	  <Content Remove="Typescript\tsconfig.json" />
+	  <JsDep Include="Typescript\package.json" />
+	  <JsDep Include="Typescript\tsconfig.json" />
+	  <JsDep Include="Typescript\webpack.config.js" />
+  </ItemGroup>
+
+  <Target Name="JsBuild" BeforeTargets="Compile" Inputs="@(JsDep)" Outputs="wwwroot\script\index.js">
+  	<RemoveDir Directories="wwwroot\script" />
+  	<Exec Command="yarn build:dev" Condition="'$(Configuration)' == 'Debug'" WorkingDirectory="Typescript" />
+  	<Exec Command="yarn build" Condition="'$(Configuration)' == 'Release'" WorkingDirectory="Typescript" />
+  </Target>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Typescript\package.json" />
+    <None Include="Typescript\tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Narcolepsy.Core\Narcolepsy.Core.csproj" />
+    <ProjectReference Include="..\Narcolepsy.Platform\Narcolepsy.Platform.csproj" />
+  </ItemGroup>
+
+</Project>

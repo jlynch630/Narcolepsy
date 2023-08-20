@@ -9,6 +9,8 @@ using Narcolepsy.Platform.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
+using Microsoft.Maui.LifecycleEvents;
+using Microsoft.Maui.Platform;
 
 public static class MauiProgram {
     public static MauiApp CreateMauiApp() {
@@ -27,6 +29,16 @@ public static class MauiProgram {
         Builder.Services.AddBlazorWebViewDeveloperTools();
         Builder.Logging.AddDebug();
 #endif
+        Builder.ConfigureLifecycleEvents(l => {
+#if WINDOWS
+            l.AddWindows(w => {
+                w.OnWindowCreated(window => {
+                    window.ExtendsContentIntoTitleBar = true;
+                });
+            });
+#endif
+        });
+
         Builder.Services.AddSingleton<AssetManager>();
         Builder.Services.AddSingleton<PluginManager>();
         Builder.Services.AddSingleton<SerializationManager>();

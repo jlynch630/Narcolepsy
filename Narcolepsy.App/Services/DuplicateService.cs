@@ -11,15 +11,18 @@
 
     internal class DuplicateService {
         private readonly RequestManager RequestManager;
+        private readonly SerializationManager SerializationManager;
 
-        public DuplicateService(RequestManager requestManager) {
+        public DuplicateService(RequestManager requestManager, SerializationManager serializer) {
             this.RequestManager = requestManager;
+            this.SerializationManager = serializer;
         }
 
-        public Task<Request> DuplicateAsync(string name, string type, IRequestContext source) {
-            DuplicateContextStore ContextStore = new();
-            source.Save(ContextStore);
-            return this.RequestManager.CreateRequestAsync(name, type, ContextStore.SaveState);
+        public async Task<Request> DuplicateAsync(string name, string type, IRequestContext source) {
+            RequestSnapshot Snapshot = await this.SerializationManager.SerializeRequestAsync(type, source);
+            Request Result = await this.RequestManager.CreateRequestAsync(Snapshot);
+            Result.Context.Name.Value = name;
+            return Result;
         }
     }
 }

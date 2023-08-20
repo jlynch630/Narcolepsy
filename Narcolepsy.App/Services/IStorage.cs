@@ -3,6 +3,8 @@
 using Collections;
 
 internal interface IStorage {
+    public Task<CollectionMetadata[]> GetCollectionsAsync();
+
     public Task<Collection> LoadCollectionAsync(string collectionId);
 
     public Task<Collection> DeleteCollectionAsync(string collectionId);

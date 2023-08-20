@@ -6,7 +6,12 @@ using Platform.Rendering;
 
 internal class SimpleBodyEditor<TComponent> : Renderable<TComponent, IHttpRequestContext>, IBodyEditor
     where TComponent : IComponent {
-    public SimpleBodyEditor(string name) => this.Name = name;
+    public SimpleBodyEditor(string name, string id) {
+        this.Name = name;
+        this.Id = id;
+    }
 
     public string Name { get; }
+
+    public string Id { get; }
 }

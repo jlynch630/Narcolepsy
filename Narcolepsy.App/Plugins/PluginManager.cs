@@ -3,6 +3,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Core;
+using GraphQL;
 using Narcolepsy.Platform.Logging;
 using Platform;
 using Platform.Requests;
@@ -12,7 +13,7 @@ using Thrift;
 
 internal class PluginManager {
     private static readonly Lazy<Assembly[]> PluginAssemblies = new(PluginManager.FindPluginAssemblies);
-    private static readonly IPluginSetup[] DefaultPluginSetups = { new CorePluginServices() };
+    private static readonly IPluginSetup[] DefaultPluginSetups = { new CorePluginServices(), new GraphQLServices() };
 
     private readonly AssetManager AssetManager;
 
@@ -20,7 +21,9 @@ internal class PluginManager {
     private readonly SerializationManager SerializationManager;
     private bool HasInitialized;
 
-    private LoadedPlugin[] LoadedPluginList;
+    private List<LoadedPlugin> LoadedPluginList;
+
+    public IReadOnlyList<LoadedPlugin> LoadedPlugins => this.LoadedPluginList;
 
     public PluginManager(RequestManager requestManager, AssetManager assetManager,
                          SerializationManager serializationManager) {
@@ -73,8 +76,8 @@ internal class PluginManager {
                                                          .Select(plugin =>
                                                              new LoadedPlugin(plugin, PluginSource.Dynamic));
 
-        this.LoadedPluginList = Default.Concat(Dynamic).ToArray();
-        Logger.Debug("Loaded {Count} total plugin(s)", this.LoadedPluginList.Length);
+        this.LoadedPluginList = Default.Concat(Dynamic).ToList();
+        Logger.Debug("Loaded {Count} total plugin(s)", this.LoadedPluginList.Count);
     }
 
     private static Assembly[] FindPluginAssemblies() {
@@ -94,7 +97,7 @@ internal class PluginManager {
         return PluginFolder;
     }
 
-    private static IPlugin[] LoadDefaultPlugins() => new IPlugin[] { new CorePlugin(), new ThriftPlugin() };
+    private static IPlugin[] LoadDefaultPlugins() => new IPlugin[] { new CorePlugin(), new GraphQLPlugin() };
 
     private static IPlugin[] LoadDynamicPlugins() {
         // find all the plugins our assemblies have

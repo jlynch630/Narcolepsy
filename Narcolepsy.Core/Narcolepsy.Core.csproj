@@ -8,6 +8,8 @@
 
   <ItemGroup>
 	<JsDep Include="Typescript\src\**\*.ts" />
+	<Content Remove="Typescript\package.json" />
+	<Content Remove="Typescript\tsconfig.json" />
 	<JsDep Include="Typescript\package.json" />
 	<JsDep Include="Typescript\tsconfig.json" />
 	<JsDep Include="Typescript\webpack.config.js" />
@@ -35,5 +37,10 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\script\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Typescript\package.json" />
+    <None Include="Typescript\tsconfig.json" />
   </ItemGroup>
 </Project>

@@ -71,7 +71,7 @@ internal class HttpRequestExecutor {
         // do content headers first
         foreach (HttpHeader Header in request.Headers.Value.Where(
                      h => h.IsEnabled && h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase))) {
-            Content.Headers.Add(Header.Name, Header.Value);
+            Content.Headers.TryAddWithoutValidation(Header.Name, Header.Value);
             Logger.Verbose("Adding content header {HeaderName}", Header.Name);
 
         }
@@ -85,7 +85,7 @@ internal class HttpRequestExecutor {
 
         foreach (HttpHeader Header in request.Headers.Value.Where(
                      h => h.IsEnabled && !h.Name.StartsWith("Content-", StringComparison.OrdinalIgnoreCase))) {
-            Message.Headers.Add(Header.Name, Header.Value);
+            Message.Headers.TryAddWithoutValidation(Header.Name, Header.Value);
             Logger.Verbose("Adding header {HeaderName}", Header.Name);
         }
 
@@ -97,6 +97,8 @@ internal class HttpRequestExecutor {
         try {
             Stopwatch Stopwatch = Stopwatch.StartNew();
             HttpResponseMessage Response = await this.Client.SendAsync(request, token);
+            Logger.Debug("Received headers in {Duration}ms", Stopwatch.ElapsedMilliseconds);
+            byte[] Content = await Response.Content.ReadAsByteArrayAsync(token);
             Stopwatch.Stop();
             Logger.Debug("Successfully executed request in {Duration}ms", Stopwatch.ElapsedMilliseconds);
 
@@ -108,7 +110,7 @@ internal class HttpRequestExecutor {
                 Response.ReasonPhrase ?? "",
                 Response.Headers.Concat(Response.Content.Headers)
                         .SelectMany(h => h.Value.Select(val => new HttpResponseHeader(h.Key, val))).ToArray(),
-                await Response.Content.ReadAsByteArrayAsync(token),
+                Content,
                 null);
         }
         catch (Exception e) {

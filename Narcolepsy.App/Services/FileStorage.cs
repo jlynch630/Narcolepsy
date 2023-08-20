@@ -15,10 +15,25 @@ internal class FileStorage : IStorage {
     public FileStorage(SerializationManager serializationManager, RequestManager requestManager) {
         this.SerializationManager = serializationManager;
         this.RequestManager = requestManager;
-        Logger.Debug("Using FileStorage storage backend");
+        Logger.Debug("Using FileStorage storage backend. Path: {Path}", FileStorage.ResolveMasterPath());
     }
 
-    public async Task<Collection> LoadCollectionAsync(string collectionId) {
+    public async Task<CollectionMetadata[]> GetCollectionsAsync() {
+        try {
+            string Path = FileStorage.ResolveMasterPath();
+            string Text = await File.ReadAllTextAsync(Path);
+            CollectionMetadata[] Out = JsonSerializer.Deserialize<CollectionMetadata[]>(Text);
+			if (Out is not null) return Out;
+
+			Logger.Warning("Failed to deserialize master collections list. Returning empty array");
+		} catch (FileNotFoundException) {
+            Logger.Verbose("Unable to load master collections list. File not found. Returning empty array");
+        }
+
+		return Array.Empty<CollectionMetadata>();
+	}
+
+	public async Task<Collection> LoadCollectionAsync(string collectionId) {
         try {
             string Path = FileStorage.ResolvePathByCollectionId(collectionId);
 
@@ -43,8 +58,25 @@ internal class FileStorage : IStorage {
             return null;
         }
     }
+	
+    private async Task UpdateMasterRecord(Collection collection) {
+        string Path = FileStorage.ResolveMasterPath();
 
-    public Task<Collection> DeleteCollectionAsync(string collectionId) {
+        // better hope this doesnt happen in parallel
+        CollectionMetadata[] Current = await this.GetCollectionsAsync();
+        CollectionMetadata Metadata = new(collection.Id, collection.Name, DateTime.Now, collection.Requests.Count, new string[] {});
+        int Index = Array.FindIndex(Current, x => x.Id == collection.Id);
+        if (Index == -1) {
+            Current = Current.Concat(Enumerable.Repeat(Metadata, 1)).ToArray();
+        } else {
+            Current[Index] = Metadata;
+        }
+
+        string AsJson = JsonSerializer.Serialize(Current);
+        await File.WriteAllTextAsync(Path, AsJson);
+    }
+
+	public Task<Collection> DeleteCollectionAsync(string collectionId) {
         throw new NotImplementedException();
     }
 
@@ -72,6 +104,7 @@ internal class FileStorage : IStorage {
         await Task.WhenAll(collection.Requests.Select(this.SaveRequestAsync));
 
         await File.WriteAllTextAsync(Path, Json);
+        await this.UpdateMasterRecord(collection);
         Logger.Verbose("Saved {FileBytes} byte collection {Id} to {Path}", Json.Length, collection.Id, Path);
 
     }
@@ -99,4 +132,7 @@ internal class FileStorage : IStorage {
 
     private static string ResolvePathByFileId(string fileId) =>
         Path.Combine(FileSystem.Current.AppDataDirectory, $"{fileId}.req");
+
+	private static string ResolveMasterPath() =>
+		Path.Combine(FileSystem.Current.AppDataDirectory, $"master.cols");
 }

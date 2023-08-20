@@ -1,0 +1,26 @@
+@using Microsoft.JSInterop
+@using Narcolepsy.Core.Interop
+@using Narcolepsy.GraphQL.Context
+@using Narcolepsy.GraphQL.Interop
+@inject NarcolepsyJs CoreServices;
+@inject GraphQLInterop Interop;
+
+<div @ref="EditorRef" style="height: 500px; width: 500px;"></div>
+
+@code {
+    private ElementReference EditorRef;
+
+    [Parameter]
+    public IGraphQLRequestContext Context { get; set; }
+
+    [Parameter]
+    public IGraphQLViewConfiguration Configuration { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender) return;
+        await Interop.InitializeAsync();
+        await CoreServices.CreateEditor(this.EditorRef, "graphql", false);
+        await Interop.SetSchemaAsync(await new Introspection().GetSchema("https://anchor.zeet.co/graphql"));
+    }
+}

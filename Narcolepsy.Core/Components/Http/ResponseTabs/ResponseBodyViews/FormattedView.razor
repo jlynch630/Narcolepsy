@@ -16,8 +16,7 @@
         await base.OnInitializedAsync();
     }
 
-    protected override async Task OnStateChangedAsync() {
-        await base.OnStateChangedAsync();
+    protected override async Task OnContextChangedAsync() {
         Context.Response.ValueChanged += async (_, r) => {
             await SetModel();
             StateHasChanged();
@@ -36,16 +35,25 @@
     }
 
     private async Task SetModel() {
-    // set the model
+        // set the model
         if (Response is null) {
             await Editor.SetModel(await JsService.CreateTextModel("", "plaintext"));
             return;
         }
 
-    // detect the language
+        MonacoTextModel? Existing = Context.State.Get<MonacoTextModel?>("response-model", null);
+        string? ExistingId = Context.State.Get<string?>("response-model-id", null);
+        if (ExistingId == Response.Id && Existing is not null) {
+            await Editor.SetModel(Existing);
+            return;
+        }
+
+        // detect the language
         MonacoLanguage Language = MonacoLanguage.GetByContentTypeHeader(Response.ResponseHeaders.GetHeaderValue("Content-Type"));
 
         MonacoTextModel NewModel = await JsService.CreateTextModel(await JsService.FormatCode(Response.BodyText, Language.PrimaryExtension), Language.Id);
+        Context.State.Add("response-model", NewModel, false);
+        Context.State.Add("response-model-id", Response.Id, false);
         await Editor.SetModel(NewModel);
     }
 

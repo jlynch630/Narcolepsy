@@ -1,4 +1,6 @@
 ﻿@using System.Text.RegularExpressions
+@using System.Diagnostics
+@using Narcolepsy.Platform.Logging
 @inherits ContextSensitiveComponent<IHttpRequestContext>
 <div class="url-method-container">
     <select class="method-select" @bind="Context.Method.Value">
@@ -34,7 +36,7 @@
 
     private async Task Execute() {
         if (IsLoadingRequest) {
-    // cancel it!
+            // cancel it!
             ReqCancelToken.Cancel();
             return;
         }
@@ -45,6 +47,17 @@
         await Context.Execute(ReqCancelToken.Token);
         IsLoadingRequest = false;
     }
+
+    // protected override Task OnAfterRenderAsync(bool firstRender) {
+    //     if (this.IsLoadingRequest && this.Stopwatch is null) {
+    //         this.Stopwatch = Stopwatch.StartNew();
+    //     } else if (!this.IsLoadingRequest && this.Stopwatch is not null) {
+    //         this.Stopwatch.Stop();
+    //         Logger.Information("Total request time: {Time}ms", this.Stopwatch.ElapsedMilliseconds);
+    //         this.Stopwatch = null;
+    //     }
+    //     return base.OnAfterRenderAsync(firstRender);
+    // }
 
     private async Task UrlChanged(ChangeEventArgs e) {
         string NewUrl = e.Value?.ToString() ?? "";

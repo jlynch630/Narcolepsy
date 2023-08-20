@@ -37,8 +37,8 @@ public class HttpViewConfiguration : IHttpViewConfiguration {
         return this;
     }
 
-    public IHttpViewConfiguration AddRequestBodyEditor<TComponent>(string name) where TComponent : IComponent
-        => this.AddRequestBodyEditor(new SimpleBodyEditor<TComponent>(name));
+    public IHttpViewConfiguration AddRequestBodyEditor<TComponent>(string name, string id) where TComponent : IComponent
+        => this.AddRequestBodyEditor(new SimpleBodyEditor<TComponent>(name, id));
 
     public IHttpViewConfiguration AddRequestTab<TComponent>(string name) where TComponent : IComponent =>
         this.AddRequestTab(new SimpleTab<TComponent, IHttpRequestContext>(name));

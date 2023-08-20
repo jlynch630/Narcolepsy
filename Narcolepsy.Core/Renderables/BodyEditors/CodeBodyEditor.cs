@@ -5,8 +5,9 @@ using Http;
 using Microsoft.AspNetCore.Components;
 
 public class CodeBodyEditor : IBodyEditor {
-    public CodeBodyEditor(string name, string languageId, string contentType) {
+    public CodeBodyEditor(string name, string id, string languageId, string contentType) {
         this.Name = name;
+        this.Id = id;
         this.LanguageId = languageId;
         this.ContentType = contentType;
     }
@@ -16,6 +17,8 @@ public class CodeBodyEditor : IBodyEditor {
     public string LanguageId { get; }
 
     public string Name { get; }
+
+    public string Id { get; }
 
     public RenderFragment RenderWithContext(IHttpRequestContext context) {
         return builder => {

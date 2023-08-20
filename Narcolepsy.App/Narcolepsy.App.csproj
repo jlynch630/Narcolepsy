@@ -33,20 +33,10 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiIcon Include="Resources\AppIcon\appiconfg.svg" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
-
-        <!-- Images -->
-        <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
-
-        <!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*" />
-
-        <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#325d59" />
     </ItemGroup>
 
     <ItemGroup>
@@ -56,10 +46,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Narcolepsy.Core\Narcolepsy.Core.csproj" />
+      <ProjectReference Include="..\Narcolepsy.GraphQL\Narcolepsy.GraphQL.csproj" />
       <ProjectReference Include="..\Narcolepsy.Platform\Narcolepsy.Platform.csproj" />
       <ProjectReference Include="..\Narcolepsy.Thrift\Narcolepsy.Thrift.csproj" />
       <ProjectReference Include="..\Narcolepsy.UiKit\Narcolepsy.UiKit.csproj" />
-	  <ProjectReference Include="..\Narcolepsy.LogConsole\Narcolepsy.LogConsole.csproj" />
+	  <ProjectReference Include="..\Narcolepsy.LogConsole\Narcolepsy.LogConsole.csproj" />  
+      <ProjectReference Include="..\Narcolepsy.CodeGen\Narcolepsy.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 	<ItemGroup Condition="'$Configuration' == 'Debug'">
 	</ItemGroup>

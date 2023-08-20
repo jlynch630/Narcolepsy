@@ -12,7 +12,7 @@ public abstract class ContextSensitiveComponent<TContext> : StateSensitiveCompon
 
     protected virtual Task OnContextChangedAsync() => Task.CompletedTask;
 
-    protected override async Task OnStateChangedAsync() {
+    protected sealed override async Task OnStateChangedAsync() {
         await base.OnStateChangedAsync();
         await this.OnContextChangedAsync();
     }

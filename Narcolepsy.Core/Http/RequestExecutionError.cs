@@ -1,3 +1,5 @@
 ﻿namespace Narcolepsy.Core.Http;
 
-public record RequestExecutionError(string? Message, string? HelpText, Exception? Exception);
+using System.Text.Json.Serialization;
+
+public record RequestExecutionError(string? Message, string? HelpText, [property:JsonIgnore] Exception? Exception);

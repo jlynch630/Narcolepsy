@@ -46,8 +46,8 @@
         ActiveTab ??= TabList.Count == 0 ? null : TabList[0];
     }
 
-    protected override async Task OnStateChangedAsync() {
-        await base.OnStateChangedAsync();
+    protected override async Task OnContextChangedAsync() {
+        await base.OnContextChangedAsync();
 
         if (StateId is null) return;
         string? SetTab = Context?.State.Get<string?>(StateId, null);

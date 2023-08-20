@@ -1,5 +1,6 @@
 ﻿namespace Narcolepsy.Platform.Serialization;
 
+using Narcolepsy.Platform.Logging;
 using Narcolepsy.Platform.Requests;
 using System;
 public class SerializationManager : ISerializationManager, ISerializer {
@@ -20,11 +21,21 @@ public class SerializationManager : ISerializationManager, ISerializer {
 
     public Task<byte[]> SerializeAsync<T>(T obj) => this.SelectSerializer<T>().SerializeAsync(obj);
 
-    public async Task<RequestSnapshot> SerializeRequestAsync(Request request) {
-        ContextStore Store = new ContextStore(this);
-        request.Context.Save(Store);
-        byte[] Data = await (Store.SerializedTask ?? throw new NotImplementedException("todo"));
-        return new RequestSnapshot(request.Type, Data);
+    public Task<RequestSnapshot> SerializeRequestAsync(Request request) => this.SerializeRequestAsync(request.Type, request.Context);
+
+    public async Task<RequestSnapshot> SerializeRequestAsync(string requestType, IRequestContext context) {
+        ContextStore Store = new(this);
+        context.Save(Store);
+        if (Store.SerializedTask is null) {
+#if DEBUG
+            throw new RequestConfigurationException($"Failed to serialize {requestType} request. {context.GetType().Name}.Save did not call IContextStore.Put to store save data.");
+#else
+            Logger.Error("Failed to serialize {Type} request. {ContextName}.Save did not call IContextStore.Put to store save data", requestType, context.GetType().Name);
+            return new RequestSnapshot(requestType, null);
+#endif
+        }
+        byte[] Data = await (Store.SerializedTask);
+        return new RequestSnapshot(requestType, Data);
     }
 
     private ISerializer SelectSerializer<T>() {

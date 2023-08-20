@@ -1,0 +1,33 @@
+﻿@using Narcolepsy.App.Plugins
+@using Narcolepsy.Core
+@inject PluginManager Plugins;
+
+<div class="status-area">
+    <div class="status-bar">
+        <StatusBarItem Icon="terminal" Interactive OnClick="ToggleLogs">
+            Logs
+        </StatusBarItem>
+        <NetworkStatus />
+        <StatusBarItem>
+            Core Plugin v@(CorePluginVersion)
+        </StatusBarItem>
+        <StatusBarItem>
+            Narcolepsy v@(AppVersion)
+        </StatusBarItem>
+    </div>
+    @if (ShowLogs) {
+        <div class="logs">
+            <Narcolepsy.LogConsole.Shared.Logs />
+        </div>
+    }
+</div>
+
+@code {
+    private string AppVersion = "0.0.0";
+    private string CorePluginVersion => this.Plugins.LoadedPlugins?.FirstOrDefault(c => c.Plugin is CorePlugin)?.Plugin.Version.ToString() ?? "ERROR";
+    public bool ShowLogs;
+
+    public void ToggleLogs() {
+        this.ShowLogs = !this.ShowLogs;
+    }
+}

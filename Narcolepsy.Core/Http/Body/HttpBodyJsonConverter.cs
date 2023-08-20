@@ -1,5 +1,6 @@
 ﻿namespace Narcolepsy.Core.Http.Body;
 
+using Narcolepsy.Platform.Logging;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -12,8 +13,12 @@ internal class HttpBodyJsonConverter : JsonConverter<IHttpBody> {
         JsonObject? Deserialized = JsonSerializer.Deserialize<JsonObject>(ref reader, options);
         if (Deserialized is null) return null;
 
-        Type? Type = Type.GetType(Deserialized["$type"]?.GetValue<string>() ?? throw new JsonException());
-        if (Type is null) throw new JsonException();
+        string? TypeName = Deserialized["$type"]?.GetValue<string>();
+        Type? Type = Type.GetType(TypeName ?? "");
+        if (Type is null) {
+            Logger.Warning("Failed to deserialize IHttpBody of request. The type of the body was null. Either something went wrong during serialization or the plugin supplying the body is no longer installed. Body type: {Type}", TypeName);
+            return null;
+        }
 
         return (IHttpBody?)Deserialized["value"]?.Deserialize(Type, options);
     }

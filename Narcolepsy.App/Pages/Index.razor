@@ -1,20 +1,18 @@
-﻿@page "/"
+﻿@page "/collection/{collectionId}"
 @using Narcolepsy.App.Plugins
 @using Narcolepsy.App.Services
 @using System.Diagnostics
-@using Microsoft.Extensions.Logging
 @using Narcolepsy.Platform.Logging
 @inject PluginManager PluginManager;
 @inject IJSRuntime JsRuntime;
 @inject AssetManager AssetManager;
 @inject IStorage Storage;
-@inject ILogger<Index> MyLogger;
 
 @if (Ready) {
     <RequestView Collection="Collection"/>
 }
 else {
-    <Narcolepsy.Core.Components.Spinner/>
+    <Narcolepsy.Core.Components.Spinner />
 }
 
 @code {
@@ -22,12 +20,15 @@ else {
     private Collection Collection;
     private Stopwatch BigStop = Stopwatch.StartNew();
 
+    [Parameter]
+    public string CollectionId { get; set; }
+
     protected override async Task OnInitializedAsync() {
         await PluginManager.InitializePluginsAsync();
         Stopwatch Stop = Stopwatch.StartNew();
-        Collection = await Storage.LoadCollectionAsync("default") ?? new Collection("Default");
+        Collection = await Storage.LoadCollectionAsync(this.CollectionId);
         Stop.Stop();
-        Logger.Debug("Loading default collection took {ElapsedMilliseconds}ms", Stop.ElapsedMilliseconds);
+        Logger.Debug("Loading collection {CollectionId} collection took {ElapsedMilliseconds}ms", this.CollectionId, Stop.ElapsedMilliseconds);
         await base.OnInitializedAsync();
     }
 

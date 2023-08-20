@@ -1,10 +1,16 @@
 ﻿@inherits LayoutComponentBase
+@using Narcolepsy.App.Shared.StatusBar
 
-<ErrorBoundary Context="e">
-    <ChildContent>
-        @Body
-    </ChildContent>
-    <ErrorContent>
-        <ErrorLogger Exception="e" />
-    </ErrorContent>
-</ErrorBoundary>
+<div class="layout">
+    <div class="content">
+        <ErrorBoundary Context="e">
+            <ChildContent>
+                @Body
+            </ChildContent>
+            <ErrorContent>
+                <ErrorLogger Exception="e"/>
+            </ErrorContent>
+        </ErrorBoundary>
+    </div>
+    <StatusBar/>
+</div>

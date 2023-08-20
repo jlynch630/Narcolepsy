@@ -2,10 +2,12 @@
 	display: grid;
 	grid: "header header" auto "list request" 1fr / 200px 1fr;
 	height: 100%;
+	overflow: hidden;
 }
 
 .request-view-area {
 	grid-area: request;
 	display: grid;
 	grid: 1fr / 1fr;
+	overflow: hidden;
 }

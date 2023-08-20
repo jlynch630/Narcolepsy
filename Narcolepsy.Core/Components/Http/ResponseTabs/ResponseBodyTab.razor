@@ -1,6 +1,5 @@
 ﻿@using Narcolepsy.Core.Components.Http.ResponseTabs.ResponseBodyViews
 @inherits ContextSensitiveComponent<IHttpRequestContext>
-@inject IJSRuntime JsRuntime
 
 <div class="body-tab">
     <div class="view-config">
@@ -11,7 +10,7 @@
         </Dropdown>
     </div>
     <div class="view">
-        @switch (CurrentViewType) {
+         @switch (CurrentViewType) {
             case ViewSelection.Formatted:
                 <FormattedView Context="Context"/>
                 break;
@@ -52,10 +51,10 @@
 
     private bool Supports(string contentType, string[] supportedTypes) => supportedTypes.Contains(contentType.ToLowerInvariant());
 
-    protected override async Task OnStateChangedAsync() {
-        await base.OnStateChangedAsync();
+    protected override async Task OnContextChangedAsync() {
+        await base.OnContextChangedAsync();
 
-    // todo: dispose!
+        // todo: dispose!
         Context.Response.ValueChanged += (_, r) => UpdateEnabledViews(r.Value);
         CurrentViewType = Context.State.Get("http-response-body-tab", ViewSelection.Preview);
         UpdateEnabledViews(Context.Response.Value);

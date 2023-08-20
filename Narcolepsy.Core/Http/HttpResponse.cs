@@ -10,14 +10,29 @@ public partial record HttpResponse {
     private static readonly DecoderFallback DecoderReplacer = new DecoderReplacementFallback("\ufffd");
     private readonly Lazy<string> StringValue;
 
-    public HttpResponse(DateTime requestDate,
-                        TimeSpan executionTime,
-                        HttpRequestMessage? requestMessage,
-                        int statusCode,
-                        string statusText,
-                        HttpResponseHeader[] responseHeaders,
-                        byte[] responseBody,
-                        RequestExecutionError? error) {
+    public HttpResponse(
+        DateTime requestDate,
+        TimeSpan executionTime,
+        HttpRequestMessage? requestMessage,
+        int statusCode,
+        string statusText,
+        HttpResponseHeader[] responseHeaders,
+        byte[] responseBody,
+        RequestExecutionError? error) : this(Guid.NewGuid().ToString(), requestDate, executionTime, requestMessage,
+        statusCode, statusText, responseHeaders, responseBody, error) { }
+
+    [JsonConstructor]
+    public HttpResponse(
+        string id,
+        DateTime requestDate,
+        TimeSpan executionTime,
+        HttpRequestMessage? requestMessage,
+        int statusCode,
+        string statusText,
+        HttpResponseHeader[] responseHeaders,
+        byte[] responseBody,
+        RequestExecutionError? error) {
+        this.Id = id;
         this.RequestDate = requestDate;
         this.ExecutionTime = executionTime;
         this.RequestMessage = requestMessage;
@@ -29,15 +44,19 @@ public partial record HttpResponse {
         this.StringValue = new Lazy<string>(this.GetStringBody);
     }
 
-    [JsonIgnore] public string BodyText => this.StringValue.Value;
+    [JsonIgnore]
+    public string BodyText => this.StringValue.Value;
 
     public RequestExecutionError? Error { get; }
 
     public TimeSpan ExecutionTime { get; }
 
+    public string Id { get; }
+
     public DateTime RequestDate { get; }
 
-    [JsonIgnore] public HttpRequestMessage? RequestMessage { get; }
+    [JsonIgnore]
+    public HttpRequestMessage? RequestMessage { get; }
 
     public byte[] ResponseBody { get; }
 
@@ -63,7 +82,7 @@ public partial record HttpResponse {
         //
         // syntax spec here: https://www.rfc-editor.org/rfc/rfc9110.html#media.type
         // so it seems that using a regex on charset=??? should work fine 99.9% of the time
-        // technically, the sender can send a quoted-string, but they SHOULD NOT according to the spec, so we won't
+        // technically, the sender can send a quoted-string, but they "SHOULD NOT" according to the spec, so we won't
         // support that yet
 
         // first: get the content type header, if any

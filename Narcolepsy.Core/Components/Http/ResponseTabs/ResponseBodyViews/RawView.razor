@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http.Headers
 @using CommunityToolkit.Maui.Storage
+@using Narcolepsy.Platform.Logging
 @inherits ContextSensitiveComponent<IHttpRequestContext>
 @inject NarcolepsyJs JsService
 
@@ -29,8 +30,7 @@
     private bool IsBinaryResponse;
     private string InferredFilename;
 
-    protected override async Task OnStateChangedAsync() {
-        await base.OnStateChangedAsync();
+    protected override async Task OnContextChangedAsync() {
         Context.Response.ValueChanged += async (_, res) => await LoadNewResponse(res.Value);
         await LoadNewResponse(Context.Response.Value);
     }

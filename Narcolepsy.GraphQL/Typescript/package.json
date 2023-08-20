@@ -1,0 +1,36 @@
+{
+  "name": "narcolepsy-graphql",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "css-loader": "^6.8.1",
+    "monaco-editor": "^0.41.0",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "scripts": {
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.9.0",
+    "@codemirror/language": "^6.8.0",
+    "@codemirror/lint": "^6.4.0",
+    "@codemirror/state": "^6.2.1",
+    "@codemirror/view": "^6.16.0",
+    "@lezer/common": "^1.0.3",
+    "@lezer/highlight": "^1.1.6",
+    "cm6-graphql": "^0.0.9",
+    "codemirror": "^6.0.1",
+    "graphql": "^16.7.1",
+    "graphql-language-service": "^5.1.7",
+    "picomatch-browser": "^2.2.6",
+    "prettier": "^3.0.1"
+  }
+}

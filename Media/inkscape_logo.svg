@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1024"
+   height="1024"
+   viewBox="0 0 270.93333 270.93334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="inkscape_logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs2">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern5058"
+       id="pattern5063"
+       patternTransform="translate(4.1633858e-6,1.1342274e-5)" />
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect5036"
+       is_visible="true"
+       pattern="M 0,5 C 0,2.24 2.24,0 5,0 7.76,0 10,2.24 10,5 10,7.76 7.76,10 5,10 2.24,10 0,7.76 0,5 Z"
+       copytype="single_stretched"
+       prop_scale="0.26458333"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect5015"
+       is_visible="true"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <pattern
+       patternUnits="userSpaceOnUse"
+       width="49.319837"
+       height="136.17294"
+       patternTransform="matrix(0.26458333,0,0,0.26458333,117.20791,51.518293)"
+       id="pattern5058">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5040"
+         d="M 2.0094675,112.09052 V 27.26909 c 0,0 -1.16420783,-25.2690899 23.7107905,-25.2690899 24.874998,0 21.434192,21.4341689 21.434192,21.4341689 v 87.788571 c 0,0 0.978557,22.79157 -22.539061,22.94941 C 1.0977699,134.32998 2.0094675,112.09052 2.0094675,112.09052 Z"
+         style="fill:#325d59;fill-opacity:1;stroke:#1d3532;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </pattern>
+    <pattern
+       patternUnits="userSpaceOnUse"
+       width="49.319836"
+       height="136.17294"
+       patternTransform="matrix(0.26458333,0,0,0.26458333,89.237671,38.667099)"
+       id="pattern5065">
+      <rect
+         id="rect5061"
+         y="5.6843419e-14"
+         x="0"
+         height="136.17294"
+         width="49.319836"
+         style="fill:url(#pattern5063);stroke:none;stroke-width:3.77952743" />
+    </pattern>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1324">
+      <circle
+         id="circle1326"
+         style="fill:#254441;fill-opacity:1;stroke-width:0.253731"
+         cx="135.20209"
+         cy="161.7979"
+         r="129.91042" />
+    </clipPath>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter3144"
+       x="-0.37120997"
+       y="-0.35580994"
+       width="1.7284826"
+       height="1.6982608">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood3134" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite3136" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="14.9533"
+         result="blur"
+         id="feGaussianBlur3138" />
+      <feOffset
+         dx="-1.4"
+         dy="-1.4"
+         result="offset"
+         id="feOffset3140" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="fbSourceGraphic"
+         id="feComposite3142" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3146" />
+      <feFlood
+         id="feFlood3148"
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         in="fbSourceGraphic" />
+      <feComposite
+         in2="fbSourceGraphic"
+         id="feComposite3150"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur3152"
+         in="composite1"
+         stdDeviation="14.9533"
+         result="blur" />
+      <feOffset
+         id="feOffset3154"
+         dx="-1.4"
+         dy="-1.4"
+         result="offset" />
+      <feComposite
+         in2="offset"
+         id="feComposite3156"
+         in="fbSourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="1"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="400.71428"
+     inkscape:cy="416.42857"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:pagecheckerboard="true"
+     showborder="true"
+     borderlayer="false"
+     inkscape:showpageshadow="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1172"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     showguides="false"
+     inkscape:deskcolor="#d1d1d1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-26.06665)">
+    <circle
+       id="path3721"
+       style="fill:#ffffff;stroke-width:0.26458332"
+       cx="135.46666"
+       cy="161.53333"
+       r="135.46666" />
+    <path
+       id="path3721-2-4"
+       style="fill:#254441;fill-opacity:1;stroke-width:0.253731"
+       d="M 133.42383,38.287109 C 105.80711,38.701383 78.37586,48.605762 57.042914,66.184451 38.062029,81.663836 23.836585,102.91427 16.883088,126.40929 c -6.249451,20.84845 -6.8976575,43.36728 -1.699867,64.51289 4.906625,20.25416 15.019024,39.23354 29.173324,54.53901 15.435785,16.79002 35.608601,29.19476 57.598695,35.27661 22.22938,6.21512 46.21911,6.09326 68.34224,-0.53676 21.07672,-6.23662 40.45316,-18.18515 55.37135,-34.34067 15.12545,-16.25289 25.772,-36.65105 30.33621,-58.3873 4.47456,-20.94048 3.38343,-43.04761 -3.20053,-63.42708 -6.20872,-19.41631 -17.305,-37.257204 -32.05092,-51.340524 -15.95694,-15.341848 -36.10501,-26.305306 -57.69234,-31.242648 -9.7027,-2.246427 -19.678,-3.311751 -29.63742,-3.175709 z" />
+    <path
+       d="M 180.898 75.7539 C 110.852 76.2305 46.2637 136.524 42.8164 206.828 C 41.2557 231.125 43.573 257.338 57.2656 278.107 C 114.456 318.397 201.959 305.659 244.598 249.948 C 277.649 209.148 286.337 148.514 261.779 101.438 C 250.467 87.0964 231.095 84.0208 214.72 78.9785 C 203.628 76.5591 192.244 75.551 180.898 75.7539 Z"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.25373128"
+       id="path5042" />
+    <path
+       id="path1218"
+       style="fill:#80cbc4;fill-opacity:1;stroke-width:0.253731;filter:url(#filter3144)"
+       d="M 179.53685 75.706514 C 151.92015 76.120794 124.48891 86.025374 103.15598 103.60404 C 84.175116 119.08341 69.949645 140.33379 62.996155 163.82878 C 56.74671 184.67721 56.098732 207.19605 61.296517 228.34164 C 65.252616 244.67211 72.59732 260.17037 82.711748 273.58591 C 88.91104 276.50195 95.348499 278.91075 101.95502 280.73793 C 124.18438 286.95304 148.17451 286.83102 170.29762 280.20101 C 191.37432 273.9644 210.75074 262.01597 225.66891 245.86047 C 240.79435 229.6076 251.44084 209.20905 256.00505 187.47282 C 260.4796 166.53236 259.38868 144.42565 252.80473 124.0462 C 248.59764 110.88952 242.13989 98.460855 233.82966 87.42983 C 225.94421 83.717991 217.67398 80.826546 209.17431 78.882548 C 199.47162 76.63612 189.49626 75.570475 179.53685 75.706514 z " />
+  </g>
+</svg>

@@ -5,4 +5,6 @@ using Platform.Rendering;
 
 public interface IBodyEditor : IRenderable<IHttpRequestContext> {
     public string Name { get; }
+
+    public string Id { get; }
 }

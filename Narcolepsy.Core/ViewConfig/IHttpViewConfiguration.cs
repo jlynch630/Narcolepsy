@@ -11,7 +11,7 @@ public interface IHttpViewConfiguration {
 
     public IHttpViewConfiguration AddRequestBodyEditor(IBodyEditor editor);
 
-    public IHttpViewConfiguration AddRequestBodyEditor<TComponent>(string name) where TComponent : IComponent;
+    public IHttpViewConfiguration AddRequestBodyEditor<TComponent>(string name, string id) where TComponent : IComponent;
 
     public IHttpViewConfiguration AddRequestTab<TComponent>(string name) where TComponent : IComponent;
 

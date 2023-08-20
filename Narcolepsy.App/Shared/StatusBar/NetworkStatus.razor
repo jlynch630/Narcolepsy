@@ -1,0 +1,45 @@
+﻿@implements IDisposable
+
+<StatusBarItem Icon="@Icon" Variant="@Variant">
+    @Text
+</StatusBarItem>
+
+@code {
+    public string Icon => Connectivity.NetworkAccess switch {
+        NetworkAccess.None or NetworkAccess.Unknown => "close",
+        NetworkAccess.Local => "warning",
+        NetworkAccess.ConstrainedInternet => "gpp_maybe",
+        NetworkAccess.Internet => "check",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+
+    public string Text => Connectivity.NetworkAccess switch {
+        NetworkAccess.None or NetworkAccess.Unknown => "Offline",
+        NetworkAccess.Local => "Local",
+        NetworkAccess.ConstrainedInternet => "Limited",
+        NetworkAccess.Internet => "Online",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+
+    public string Variant => Connectivity.NetworkAccess switch {
+        NetworkAccess.None or NetworkAccess.Unknown => "bad",
+        NetworkAccess.Local or NetworkAccess.ConstrainedInternet => "warning",
+        NetworkAccess.Internet => "good",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        Connectivity.ConnectivityChanged += this.ConnectivityChanged;
+    }
+
+    private void ConnectivityChanged(object sender, ConnectivityChangedEventArgs e) {
+        this.StateHasChanged();
+    }
+
+    public void Dispose() {
+        Connectivity.ConnectivityChanged -= this.ConnectivityChanged;
+    }
+}

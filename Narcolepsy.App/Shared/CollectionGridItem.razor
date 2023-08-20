@@ -1,0 +1,45 @@
+@inject NavigationManager Nav
+<div class="collection-card" @onclick="CollectionClicked">
+    <div class="card-content">
+        <h3 class="card-title">@Metadata.Name</h3>
+    </div>
+    <div class="card-footer">
+        <span class="card-reqs">@(Metadata.RequestCount == 0 ? "No" : Metadata.RequestCount) Request@(Metadata.RequestCount == 1 ? "" : "s")</span>
+        <span class="card-date">Updated @GetUpdateTime()</span>
+    </div>
+    <div class="tags">
+        @foreach (string Tag in Metadata.Domains) {
+            <span class="tag">@Tag</span>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public CollectionMetadata Metadata { get; set; }
+
+    private void CollectionClicked() {
+        this.Nav.NavigateTo($"/collection/{this.Metadata.Id}");
+    }
+
+    private string GetUpdateTime() {
+        double DifferenceSeconds = (DateTime.Now - Metadata.LastModified).TotalSeconds;
+
+        if (DifferenceSeconds < 60) return "just now";
+
+        return GetTime(DifferenceSeconds, 60, 3600, "minute")
+                ?? GetTime(DifferenceSeconds, 3600, 86400, "hour", "an")
+                ?? GetTime(DifferenceSeconds, 86400, 604800, "day")
+                ?? GetTime(DifferenceSeconds, 604800, 2628000, "week")
+                ?? GetTime(DifferenceSeconds, 2628000, 31536000, "month")
+                ?? GetTime(DifferenceSeconds, 31536000, null, "year");
+    }
+
+    private string GetTime(double value, int singleSeconds, int? max, string unit, string prefix = "a") {
+        if (value < singleSeconds || value >= max) return null;
+        if (value <= (2 * singleSeconds)) return $"{prefix} {unit} ago";
+
+        string PluralUnit = unit + "s";
+        return $"{(value / singleSeconds):0} {PluralUnit} ago";
+    } 
+}

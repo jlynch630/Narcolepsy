@@ -1,6 +1,7 @@
 ﻿namespace Narcolepsy.Platform.Rendering;
 
 using Microsoft.AspNetCore.Components;
+using Narcolepsy.Platform.Logging;
 using State;
 
 public abstract class StateSensitiveComponent<TStateProvider> : ComponentBase, IDisposable {
@@ -10,21 +11,22 @@ public abstract class StateSensitiveComponent<TStateProvider> : ComponentBase, I
 
     protected abstract TStateProvider? StateProvider { get; }
 
+    private TStateProvider? LastStateProvider;
+
     public virtual void Dispose() {
         this.RemoveAllEventHandlers();
         GC.SuppressFinalize(this);
     }
 
     public override async Task SetParametersAsync(ParameterView parameters) {
-        TStateProvider? NewContextValue = parameters.GetValueOrDefault<TStateProvider>(nameof(this.StateProvider));
-        bool ContextChanged = !(this.StateProvider?.Equals(NewContextValue) ?? false);
-
         await base.SetParametersAsync(parameters);
+        bool ContextChanged = !(this.StateProvider?.Equals(this.LastStateProvider) ?? false);
 
         if (ContextChanged) await this.OnStateChangedAsync();
     }
 
     protected virtual Task OnStateChangedAsync() {
+        this.LastStateProvider = this.StateProvider;
         this.RemoveAllEventHandlers();
 
         if (this.StateProvider is not null) {

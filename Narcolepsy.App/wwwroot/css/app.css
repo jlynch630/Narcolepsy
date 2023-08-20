@@ -1,8 +1,14 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200..900&family=Inter:wght@200..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-
 body {
-    font-family: Quicksand, Arial, serif
+    font-family: 'Inter', Arial, serif;
+    font-weight: 300;
+    --title-font: "Montserrat", Arial, serif
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--title-font);
 }
 
 input {

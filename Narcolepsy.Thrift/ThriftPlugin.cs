@@ -31,7 +31,7 @@
                    .ConfigureIcon("play_arrow");
             context.Requests.ConfigureHttp(config => {
                 config
-                    .AddRequestBodyEditor<ThriftBodyEditorView>("Thrift");
+                    .AddRequestBodyEditor<ThriftBodyEditorView>("Thrift", "Narcolepsy.Thrift-thrift");
             });
         }
 

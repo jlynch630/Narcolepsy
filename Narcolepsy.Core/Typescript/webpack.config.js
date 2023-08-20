@@ -14,7 +14,7 @@ const config = {
         },
     },
     plugins: [
-        new MonacoWebpackPlugin()
+        new MonacoWebpackPlugin({ globalAPI: true })
     ],
     module: {
         rules: [

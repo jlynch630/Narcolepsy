@@ -1,0 +1,66 @@
+﻿.collection-card {
+	border: 1px solid var(--color-gray);
+	border-radius: 4px;
+	overflow: hidden;
+	transition: color 150ms ease;
+	cursor: pointer;
+}
+
+h3.card-title {
+	margin: 0;
+	font-weight: 300;
+	user-select: none;
+}
+
+.card-content {
+	padding: 16px;
+	background: var(--color-lighter-gray);
+	transition: background 150ms ease;
+}
+
+.card-footer {
+	background: var(--color-light-gray);
+	font-size: 0.8em;
+	display: flex;
+	padding: 4px 8px;
+	transition: background 150ms ease;
+}
+
+.card-reqs {
+	flex-grow: 1;
+}
+
+.collection-card:hover {
+	color: var(--color-primary-text);
+}
+
+	.collection-card:hover .card-content {
+		background: var(--color-primary-light);
+	}
+
+	.collection-card:hover .card-footer {
+		background: var(--color-primary-dark);
+	}
+
+	.collection-card:hover .tag {
+		background: var(--color-accent);
+	}
+
+.collection-card:active .card-content {
+	background: var(--color-primary);
+}
+
+.tag {
+	background: var(--color-lighter-gray);
+	padding: 4px;
+	border-radius: 4px;
+	box-shadow: 0 0 2px 1px rgba(0,0,0,0.05);
+	margin: 4px;
+	font-size: 0.8em;
+	transition: background 150ms ease;
+}
+
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+}

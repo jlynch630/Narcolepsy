@@ -8,6 +8,8 @@ using Http;
 using Platform;
 using Platform.Extensions;
 using Renderables.BodyEditors;
+using System.Net.Mime;
+using System.Xml.Linq;
 using ViewConfig;
 
 public class CorePlugin : IPlugin {
@@ -48,11 +50,11 @@ public class CorePlugin : IPlugin {
                 .AddResponseInfoBox<ResponseSizeInfo>();
 
             config
-                .AddRequestBodyEditor<EmptyBodyView>("No Body")
-                .AddRequestBodyEditor<UrlEncodedFormBodyView>("Url Encoded Form")
-                .AddCodeBodyEditor("JSON", "json", "application/json; charset=utf-8")
-                .AddCodeBodyEditor("XML", "xml", "application/xml; charset=utf-8")
-                .AddCodeBodyEditor("Plain Text", "plaintext", "text/plain; charset=utf-8");
+                .AddRequestBodyEditor<EmptyBodyView>("No Body", "Narcolepsy.Core-Empty")
+                .AddRequestBodyEditor<UrlEncodedFormBodyView>("Url Encoded Form", "Narcolepsy.Core-form")
+                .AddCodeBodyEditor("JSON", "Narcolepsy.Core-Json","json", "application/json; charset=utf-8")
+                .AddCodeBodyEditor("XML", "Narcolepsy.Core-XML", "xml", "application/xml; charset=utf-8")
+                .AddCodeBodyEditor("Plain Text", "Narcolepsy.Core-Text", "plaintext", "text/plain; charset=utf-8");
         });
     }
 

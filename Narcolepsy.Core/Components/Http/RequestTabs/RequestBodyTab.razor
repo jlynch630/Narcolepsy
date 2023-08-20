@@ -1,4 +1,5 @@
 @using Narcolepsy.Core.Renderables.BodyEditors
+@using Narcolepsy.Platform.Logging
 @inherits ContextSensitiveComponent<IHttpRequestContext>
 <div class="request-body">
     <div class="toolbar">
@@ -22,17 +23,29 @@
 
     protected override async Task OnContextChangedAsync() {
         await base.OnContextChangedAsync();
-        ActiveBodyEditor = Configuration.RequestBodyEditors[Context.State.Get("http-request-body-tab", 0)];
+        string? SavedId = this.Context?.State.Get<string>("http-request-body-tab", null);
+
+        if (Configuration.RequestBodyEditors.Count == 0) {
+            Logger.Warning("No HTTP body editors were added");
+            return;
+        }
+        if (SavedId is null) {
+            ActiveBodyEditor = Configuration.RequestBodyEditors[0];
+        }
+        else {
+            IBodyEditor? Match = Configuration.RequestBodyEditors.FirstOrDefault(e => e.Id == SavedId);
+            if (Match is null) {
+                Logger.Warning("Unable to restore HTTP body editor state. Editor with id {EditorId} not found", SavedId);
+                ActiveBodyEditor = Configuration.RequestBodyEditors[0];
+                return;
+            }
+            ActiveBodyEditor = Match;
+        }
     }
 
     private void ValueChanged(IBodyEditor newEditor) {
         ActiveBodyEditor = newEditor;
-
-        // no indexof on readonly list. who knows why
-        int Index = 0;
-        for (; Index < Configuration.RequestBodyEditors.Count; Index++)
-            if (Configuration.RequestBodyEditors[Index] == newEditor) break;
-        Context.State.Add("http-request-body-tab", Index);
+        this.Context?.State.Add("http-request-body-tab", newEditor.Id);
     }
 
 }
