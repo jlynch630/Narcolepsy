@@ -1,6 +1,7 @@
 ﻿@inherits Narcolepsy.Platform.Rendering.StateSensitiveComponent<Collection>
-<aside class="request-list">
+<aside class="request-list-container">
     <NewRequestButton ClassName="add-button" />
+    <div class="request-list">
     @foreach (SavedRequest Saved in Collection.Requests) {
         <RequestListItem
             Context="Saved.Request.Context"
@@ -8,6 +9,7 @@
             Request="@Saved"
             OnClick="() => Collection.ActiveRequest.Value = Saved" />
     }
+    </div>
 </aside>
 
 @code {

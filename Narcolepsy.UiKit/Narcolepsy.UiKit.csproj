@@ -36,4 +36,8 @@
     <UpToDateCheckInput Remove="layout\ContextMenu.razor.scss" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Form\EditableText - Copy.razor.scss" />
+  </ItemGroup>
+
 </Project>

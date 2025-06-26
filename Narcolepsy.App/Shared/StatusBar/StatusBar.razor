@@ -1,6 +1,7 @@
 ﻿@using Narcolepsy.App.Plugins
 @using Narcolepsy.Core
 @inject PluginManager Plugins;
+@implements IDisposable
 
 <div class="status-area">
     <div class="status-bar">
@@ -8,9 +9,12 @@
             Logs
         </StatusBarItem>
         <NetworkStatus />
-        <StatusBarItem>
-            Core Plugin v@(CorePluginVersion)
-        </StatusBarItem>
+        @if (CorePluginVersion is not null)
+        {
+            <StatusBarItem>
+                Core Plugin v@(CorePluginVersion)
+            </StatusBarItem>
+        }
         <StatusBarItem>
             Narcolepsy v@(AppVersion)
         </StatusBarItem>
@@ -24,10 +28,24 @@
 
 @code {
     private string AppVersion = "0.0.0";
-    private string CorePluginVersion => this.Plugins.LoadedPlugins?.FirstOrDefault(c => c.Plugin is CorePlugin)?.Plugin.Version.ToString() ?? "ERROR";
+    private string CorePluginVersion => this.Plugins.LoadedPlugins?.FirstOrDefault(c => c.Plugin is CorePlugin)?.Plugin.Version.ToString();
     public bool ShowLogs;
+
+    protected override void OnInitialized() {
+        this.Plugins.PluginsLoaded += PluginsLoaded;
+        base.OnInitialized();
+    }
+
+    private void PluginsLoaded(object sender, EventArgs e) {
+        this.InvokeAsync(this.StateHasChanged);
+    }
 
     public void ToggleLogs() {
         this.ShowLogs = !this.ShowLogs;
     }
+
+    public void Dispose() {
+        this.Plugins.PluginsLoaded -= PluginsLoaded;
+    }
+
 }

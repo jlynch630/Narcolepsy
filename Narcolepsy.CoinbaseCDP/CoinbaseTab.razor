@@ -1,0 +1,48 @@
+@using System.Security.Cryptography
+@using JWT.Algorithms
+@using JWT.Builder
+@using Narcolepsy.Core.Http
+@using Narcolepsy.UiKit.Form
+@inherits Narcolepsy.Platform.Rendering.ContextSensitiveComponent<IHttpRequestContext>
+
+<div class="request-body">
+    <Input type="text" placeholder="API Key Name" @bind-Value="@ApiKeyName" />
+    <Input type="text" placeholder="API Key Private Key" @bind-Value="@ApiKeyPrivateKey" />
+    <Button onclick="@SaveAndSet">Save & Set JWT</Button>
+</div>
+
+@code {
+    private string ApiKeyName;
+    private string ApiKeyPrivateKey;
+
+    protected override async Task OnContextChangedAsync() {
+        await base.OnContextChangedAsync();
+
+        this.ApiKeyName = Context.State.Get("coinbase_api_key_name", "");
+        this.ApiKeyPrivateKey = Context.State.Get("coinbase_api_key_private_key", "");
+    }
+
+    private void SaveAndSet() {
+        if (Context is null) return;
+        Context.State.Add("coinbase_api_key_name", ApiKeyName);
+        Context.State.Add("coinbase_api_key_private_key", ApiKeyPrivateKey);
+
+        // derive and set the JWT!
+        string Method = Context.Method.Value;
+        string Uri = Context.Url.Value;
+        ECDsa Ecd = ECDsa.Create();
+        Ecd.ImportECPrivateKey(Convert.FromBase64String(ApiKeyPrivateKey), out int _);
+        string FormattedUri = $"{Method} {Uri.Replace("https://", "")}";
+        string Jwt = JwtBuilder.Create()
+            .WithAlgorithm(new ES256Algorithm(Ecd, Ecd))
+            .Subject(ApiKeyName)
+            .Issuer("cdp")
+            .NotBefore(DateTime.UtcNow)
+            .ExpirationTime(DateTime.UtcNow.AddMinutes(2))
+            .AddHeader("kid", ApiKeyName)
+            .AddHeader("nonce", Convert.ToHexString(RandomNumberGenerator.GetBytes(16)))
+            .AddClaim("uri", FormattedUri)
+            .Encode();
+        Context.Headers.SetAutoHeader("Authorization", $"Bearer {Jwt}", "This header is set automatically for authorization with Coinbase CDP", false);
+    }
+}

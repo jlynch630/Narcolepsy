@@ -23,6 +23,8 @@
 }
 .container .text {
   white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .container.editing {
   border-bottom-color: currentColor;

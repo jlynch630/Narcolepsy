@@ -6,3 +6,24 @@
 	align-content: flex-start;
 	align-items: flex-start;
 }
+
+.add-card {
+	border: 1px solid var(--color-gray);
+	border-radius: 4px;
+	overflow: hidden;
+	transition: color 150ms ease;
+	cursor: pointer;
+	height: 80px;
+	align-content: center;
+	text-align: center;
+}
+
+.icon {
+	font-size: 36px;
+}
+
+.text {
+	margin: 0;
+	font-weight: 300;
+	user-select: none;
+}

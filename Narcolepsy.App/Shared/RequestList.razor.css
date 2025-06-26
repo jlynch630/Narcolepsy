@@ -1,8 +1,9 @@
 ﻿aside {
 	grid-area: list;
 	border-right: 1px solid var(--color-gray);
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-rows: auto 1fr;
+	overflow: hidden;
 }
 
 ::deep .add-button {
@@ -12,4 +13,9 @@
 
 .add-button .material-symbols-rounded {
 	font-size: 20px;
+}
+
+.request-list {
+	overflow-y: auto;
+	overflow-x: hidden;
 }

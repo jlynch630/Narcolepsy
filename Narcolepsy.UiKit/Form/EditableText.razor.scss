@@ -24,6 +24,8 @@
 
 	.text {
 		white-space: pre;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	&.editing {

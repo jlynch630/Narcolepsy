@@ -60,7 +60,10 @@
         this.SaveActive();
     }
 
-    private Task SaveActive() => this.Storage.SaveRequestAsync(this.Active);
+    private Task SaveActive() {
+        if (this.Active is null) return Task.CompletedTask;
+        return this.Storage.SaveRequestAsync(this.Active);
+    }
 
     protected override Collection StateProvider => this.Collection;
 

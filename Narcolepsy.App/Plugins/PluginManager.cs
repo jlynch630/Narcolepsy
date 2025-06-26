@@ -2,14 +2,13 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using CoinbaseCDP;
 using Core;
 using GraphQL;
-using Narcolepsy.Platform.Logging;
 using Platform;
-using Platform.Requests;
+using Platform.Logging;
 using Platform.Serialization;
 using Requests;
-using Thrift;
 
 internal class PluginManager {
     private static readonly Lazy<Assembly[]> PluginAssemblies = new(PluginManager.FindPluginAssemblies);
@@ -23,8 +22,6 @@ internal class PluginManager {
 
     private List<LoadedPlugin> LoadedPluginList;
 
-    public IReadOnlyList<LoadedPlugin> LoadedPlugins => this.LoadedPluginList;
-
     public PluginManager(RequestManager requestManager, AssetManager assetManager,
                          SerializationManager serializationManager) {
         this.RequestManager = requestManager;
@@ -32,12 +29,16 @@ internal class PluginManager {
         this.SerializationManager = serializationManager;
     }
 
+    public IReadOnlyList<LoadedPlugin> LoadedPlugins => this.LoadedPluginList;
+
     public static void InitializePluginServices(IServiceCollection services) {
         // todo: violate srp? refactor?
         // called during app startup
         IPluginSetup[] PluginSetups = PluginManager.PluginAssemblies.Value.SelectMany(
-                                                       a => a.ExportedTypes.Where(type => typeof(IPluginSetup).IsAssignableFrom(type))
-                                                             .Select(type => Activator.CreateInstance(type) as IPluginSetup)
+                                                       a => a.ExportedTypes.Where(type =>
+                                                                 typeof(IPluginSetup).IsAssignableFrom(type))
+                                                             .Select(type =>
+                                                                 Activator.CreateInstance(type) as IPluginSetup)
                                                              .Where(plugin => plugin is not null))
                                                    .ToArray();
 
@@ -52,6 +53,7 @@ internal class PluginManager {
             Logger.Warning("Refusing to initialize plugins again, already initialized");
             return;
         }
+
         if (this.LoadedPluginList is null)
             this.LoadPlugins();
 
@@ -77,6 +79,7 @@ internal class PluginManager {
                                                              new LoadedPlugin(plugin, PluginSource.Dynamic));
 
         this.LoadedPluginList = Default.Concat(Dynamic).ToList();
+        this.PluginsLoaded?.Invoke(this, EventArgs.Empty);
         Logger.Debug("Loaded {Count} total plugin(s)", this.LoadedPluginList.Count);
     }
 
@@ -93,11 +96,13 @@ internal class PluginManager {
         string AppDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         string PluginFolder = Path.Combine(AppDataRoot, "Narcolepsy", "Plugins");
         Directory.CreateDirectory(PluginFolder);
+
         Logger.Debug("Using plugins directory: {Directory}", PluginFolder);
         return PluginFolder;
     }
 
-    private static IPlugin[] LoadDefaultPlugins() => new IPlugin[] { new CorePlugin(), new GraphQLPlugin() };
+    private static IPlugin[] LoadDefaultPlugins() =>
+        new IPlugin[] { new CorePlugin(), new GraphQLPlugin(), new CdpPlugin() };
 
     private static IPlugin[] LoadDynamicPlugins() {
         // find all the plugins our assemblies have
@@ -126,4 +131,6 @@ internal class PluginManager {
             this.AssetManager,
             this.SerializationManager);
     }
+
+    public event EventHandler<EventArgs> PluginsLoaded;
 }

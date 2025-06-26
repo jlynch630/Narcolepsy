@@ -18,17 +18,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.LogConsole", "Na
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.CodeGen", "Narcolepsy.CodeGen\Narcolepsy.CodeGen.csproj", "{5F9F79C3-94DD-480D-83F5-B8411215B7F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.GraphQL", "Narcolepsy.GraphQL\Narcolepsy.GraphQL.csproj", "{2A8F4D31-6459-4221-A34D-F5A608DEE816}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.GraphQL", "Narcolepsy.GraphQL\Narcolepsy.GraphQL.csproj", "{2A8F4D31-6459-4221-A34D-F5A608DEE816}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.Analyzers", "Narcolepsy.Analyzers\Narcolepsy.Analyzers\Narcolepsy.Analyzers.csproj", "{11C2AE22-8551-460F-B52B-5BC01FF02EA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Analyzers", "Narcolepsy.Analyzers\Narcolepsy.Analyzers\Narcolepsy.Analyzers.csproj", "{11C2AE22-8551-460F-B52B-5BC01FF02EA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.Analyzers.CodeFixes", "Narcolepsy.Analyzers\Narcolepsy.Analyzers.CodeFixes\Narcolepsy.Analyzers.CodeFixes.csproj", "{598F6EB4-7E47-483F-9E45-68CA73658514}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Analyzers.CodeFixes", "Narcolepsy.Analyzers\Narcolepsy.Analyzers.CodeFixes\Narcolepsy.Analyzers.CodeFixes.csproj", "{598F6EB4-7E47-483F-9E45-68CA73658514}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.Analyzers.Package", "Narcolepsy.Analyzers\Narcolepsy.Analyzers.Package\Narcolepsy.Analyzers.Package.csproj", "{77615C7C-6F2E-4333-A11D-DC6E0F1F9E3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Analyzers.Package", "Narcolepsy.Analyzers\Narcolepsy.Analyzers.Package\Narcolepsy.Analyzers.Package.csproj", "{77615C7C-6F2E-4333-A11D-DC6E0F1F9E3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.Analyzers.Vsix", "Narcolepsy.Analyzers\Narcolepsy.Analyzers.Vsix\Narcolepsy.Analyzers.Vsix.csproj", "{CD9AE3E2-8DC1-42D9-AF40-C494D6074699}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Narcolepsy.Analyzers.Vsix", "Narcolepsy.Analyzers\Narcolepsy.Analyzers.Vsix\Narcolepsy.Analyzers.Vsix.csproj", "{CD9AE3E2-8DC1-42D9-AF40-C494D6074699}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzers", "Analyzers", "{2456D803-AC63-4EEB-93C0-C300BF3A145C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narcolepsy.CoinbaseCDP", "Narcolepsy.CoinbaseCDP\Narcolepsy.CoinbaseCDP.csproj", "{41FFB336-1A83-4A0B-9E3E-BBF6EC0E8C4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +92,10 @@ Global
 		{CD9AE3E2-8DC1-42D9-AF40-C494D6074699}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD9AE3E2-8DC1-42D9-AF40-C494D6074699}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD9AE3E2-8DC1-42D9-AF40-C494D6074699}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41FFB336-1A83-4A0B-9E3E-BBF6EC0E8C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41FFB336-1A83-4A0B-9E3E-BBF6EC0E8C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41FFB336-1A83-4A0B-9E3E-BBF6EC0E8C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41FFB336-1A83-4A0B-9E3E-BBF6EC0E8C4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

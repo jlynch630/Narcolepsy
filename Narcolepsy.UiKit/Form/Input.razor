@@ -1,0 +1,10 @@
+﻿@inherits StyledHtmlComponent
+<input class="@GetClassName("input")" @attributes="this.Attributes" value="@Value" @onchange="e => ValueChanged.InvokeAsync(e.Value as string)"/>
+
+@code {
+    [Parameter]
+    public string Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+}

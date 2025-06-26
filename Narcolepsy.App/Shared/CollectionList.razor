@@ -1,28 +1,46 @@
 ﻿@using Narcolepsy.App.Services
+@using Narcolepsy.Platform.Logging
 @inject IStorage StorageManager
+@inject NavigationManager Nav
 <div class="collection-grid">
     @foreach (CollectionMetadata Metadata in Collections) {
         <CollectionGridItem Metadata="Metadata" />
     }   
+
+    <div class="add-card" @onclick="() => CreatingCollection = true">
+        <span class="material-symbols-rounded icon">add</span>
+        <p class="text">Create Collection</p>
+    </div>
+    @if (CreatingCollection) {
+        <Modal Canceled="() => CreatingCollection = false">
+            <Title>
+                Create Collection
+            </Title>
+            <Content>
+                <Input placeholder="Name" @bind-Value="CollectionName"/>
+            </Content>
+            <Actions>
+                <Button Outlined @onclick="() => CreatingCollection = false">Cancel</Button>
+                <Button @onclick="Create" class="create-btn">Create</Button>
+            </Actions>
+        </Modal>
+    }
 </div>
 
 @code {
-    private CollectionMetadata[] Collections = new[] { 
-        new CollectionMetadata("default", "My Collection", DateTime.Now.AddDays(-180), 23, new[] {"crossword.azurewebsites.net", "firetabs.azurewebsites.net"}),
-        new CollectionMetadata("treasury", "My Collection", DateTime.Now.AddDays(-750), 14, new[] {"auth.hulu.com", "discovery.hulu.com"}),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddDays(-1), 52, new[] {"a.appspot.com", "b.appspot.com"}),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddDays(-2), 7, new[] {"google.com", "boogle.com"}),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddDays(-7), 1, new[] {"a.com"}),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddDays(-15), 0, new string[] { }),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddSeconds(-5), 11, new[] {"hello"}),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddMinutes(-5), 42, new[] {"uh-oh"}),
-        new CollectionMetadata("id", "My Collection", DateTime.Now.AddHours(-5), 10, new[] {"oh, well"}),
-                                             };
-
+    private CollectionMetadata[] Collections = Array.Empty<CollectionMetadata>();
+    private bool CreatingCollection = false;
+    private string CollectionName = "";
 
     protected override async Task OnInitializedAsync() {
         this.Collections = await this.StorageManager.GetCollectionsAsync();
         await base.OnInitializedAsync();
     }
 
+    private async Task Create() {
+        CreatingCollection = false;
+        Collection NewCollection = new(CollectionName);
+        await this.StorageManager.SaveCollectionAsync(NewCollection);
+        this.Nav.NavigateTo($"/collection/{NewCollection.Id}");
+    }
 }
